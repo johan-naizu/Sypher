@@ -89,6 +89,25 @@ class Fun(commands.Cog):
         topic=await utils.get_topic()
         await ctx.send(f"**{topic}**")
 
+    @commands.command(description='Get definitions from Urban Dictionary', usage='urban {word}')
+    @commands.is_nsfw()
+    async def urban(self, ctx,*query):
+        if not query:
+            embed = discord.Embed(colour=ENV_COLOUR,
+                                  description=f"{utils.CROSS_EMOJI} Please mention the word you want to look up")
+            await ctx.send(embed=embed)
+            return
+        definition=await utils.get_urban(query)
+        if not definition:
+            embed = discord.Embed(colour=ENV_COLOUR,
+                                  description=f"{utils.CROSS_EMOJI} No results were found for **{' '.join(query)}**")
+            await ctx.send(embed=embed)
+            return
+        definition=definition.replace("[",'')
+        definition=definition.replace("]",'')
+
+        await ctx.send(f"**{' '.join(query)}**\n\n{definition}")
+
 
     @commands.command(description='Gives random memes', usage='meme')
     async def meme(self,ctx):

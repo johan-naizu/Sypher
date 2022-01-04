@@ -521,6 +521,17 @@ async def corona_stats(location=None):
                 j = json.loads(response)
                 return j
 
+async def get_urban(query):
+    q='%20'.join(query)
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f'https://api.urbandictionary.com/v0/define?term={q}') as r:
+            response= await r.read()
+            d=json.loads(response)
+            if not d['list']:
+                return None
+            definition=d['list'][0]['definition']
+            return definition
+
 async def wolfram_image(arg):
     query = '+'.join(arg.split())
     url = f"https://api.wolframalpha.com/v1/simple?i={query}%3F&background=white&foreground=black&units=metric&appid={WA_TOKEN}"
