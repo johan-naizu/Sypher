@@ -158,7 +158,7 @@ class admin(commands.Cog):
                 msg = f"**Shell:**\n\n```py\n{str_obj.getvalue()}```"
 
                 if result:
-                    if not type(result) in [str, int, list, tuple, dict, float]:
+                    if not type(result) in [str, int, list, tuple, dict, float,set,complex,range,frozenset]:
                         msg = msg + f"\n\n**Type:**\n\n```py\n{result.__class__}```"
                     else:
                         msg = msg + f"\n\n**Output:**\n\n```py\n{result}```"
@@ -172,7 +172,7 @@ class admin(commands.Cog):
                 msg = msg.replace(utils.DB_PASSWORD, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 await ctx.send(msg)
             else:
-                if not result:
+                if not result and not type(result) in [str, int, list, tuple, dict, float,bool,set,complex,range,frozenset]:
                     await ctx.message.add_reaction(f"{utils.TICK_EMOJI}")
                 else:
                     if not type(result) in [str, int, list, tuple, dict, float,bool,set,complex,range,frozenset]:
