@@ -157,7 +157,7 @@ class admin(commands.Cog):
             if str_obj.getvalue():
                 msg = f"**Shell:**\n\n```py\n{str_obj.getvalue()}```"
 
-                if result:
+                if result or type(result) in [str, int, list, tuple, dict, float,bool,set,complex,range,frozenset]:
                     if not type(result) in [str, int, list, tuple, dict, float,set,complex,range,frozenset]:
                         msg = msg + f"\n\n**Type:**\n\n```py\n{result.__class__}```"
                     else:
