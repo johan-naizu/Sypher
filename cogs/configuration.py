@@ -76,7 +76,8 @@ class Configuration(commands.Cog):
                         await ctx.send(embed=e)
                         return
                     if result:
-                        greeting_message=greeting_message.replace("'","ø")
+                        greeting_message=greeting_message.replace("'",r'\'')
+                        greeting_message = greeting_message.replace('"', r'\"')
                         await cursor.execute(
                             f'''UPDATE configurations SET greeting='True',greeting_channel='{channel.id}',greeting_message='{greeting_message}' WHERE guild='{ctx.guild.id}';''')
                         await conn.commit()
@@ -146,7 +147,6 @@ class Configuration(commands.Cog):
                 if result:
                     if result[0][0]=='True':
                         message=result[0][2]
-                        message=message.replace("ø","'")
                         channel=await utils.get_channel(self.bot,int(result[0][1]))
                         await channel.send(f"{message} {member.mention}")
 

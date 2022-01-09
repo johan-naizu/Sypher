@@ -343,6 +343,8 @@ class Utilities(commands.Cog):
                     b = x + datetime.timedelta(days=int(duration * 365))  #
 
                 date = b
+                text=text.replace("'",r"\'")
+                text = text.replace('"', r"\"")
                 await cursor.execute(
                     f'''INSERT INTO reminders VALUES('{ctx.author.id}','{ctx.channel.id}','{text}','{str(date)}','{ctx.message.id}');''')
                 await conn.commit()
@@ -398,7 +400,7 @@ class Utilities(commands.Cog):
                     await channel.send(
                         f"{utils.REMINDER_EMOJI} <@{user}> **You wanted me to remind you** : {text}")
                     await cursor.execute(
-                        f"DELETE FROM reminders WHERE user='{user}' and note='{text}' and channel={i[1]} and message='{message}';")
+                        f"DELETE FROM reminders WHERE user='{user}' and channel={i[1]} and message='{message}';")
                     await conn.commit()
 
     @commands.command(description='Get the current covid-19 stats', usage='corona [country]',aliases=['covid'])
