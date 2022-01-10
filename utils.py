@@ -27,6 +27,7 @@ ENV_COLOUR=env['COLOUR']
 TOKEN=env['TOKEN']
 KSOFT_TOKEN=env['ksoft']
 WA_TOKEN=env['wa']
+CUTTLY_TOKEN=env['cuttly']
 CROSS_EMOJI="<:sypher_cross:833930332604465181>"
 TICK_EMOJI="<:sypher_tick:833930333434019882>"
 ROLL_EMOJI="<a:rolling:909092152062124122>"
@@ -81,6 +82,7 @@ YELLOW_ICON_EMOJI='<:yellow_icon:922046561909899265>'
 LEFT_END='<:left_end:922335926976397322>'
 RIGHT_END='<:right_end:922335929987907594>'
 MIDDLE_END='<:middle_end:922335926489858068>'
+MODERATE_EMOJI='<:moderate:930024141338333204>'
 
 
 
@@ -116,6 +118,101 @@ def regex(string):
     r= r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
     url = re.findall(r,string)
     return [x[0] for x in url]
+async def ping_url(url):
+    u = url
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(u) as r:
+                return True
+    except aiohttp.ClientConnectionError:
+        return False
+def emo(score):
+    if 90 <= score <= 100:
+        return f"{TICK_EMOJI}"
+    if 50 <= score < 90:
+        return f"{MODERATE_EMOJI}"
+    if 0 <= score < 50:
+        return f"{CROSS_EMOJI}"
+def fcp(score):
+    if 0 <= score <= 2:
+        return f"{TICK_EMOJI}"
+    if 2 < score <= 4:
+        return f"{MODERATE_EMOJI}"
+    if score > 4:
+        return f"{CROSS_EMOJI}"
+def si(score):
+    if 0 <= score <= 4.3:
+        return f"{TICK_EMOJI}"
+    if 4.3< score <= 5.8:
+        return f"{MODERATE_EMOJI}"
+    if score > 5.8:
+        return f"{CROSS_EMOJI}"
+
+def lcps(score):
+    if 0 <= score <= 2.5:
+        return f"{TICK_EMOJI}"
+    if 2.5 < score <= 4:
+        return f"{MODERATE_EMOJI}"
+    if score >4:
+        return f"{CROSS_EMOJI}"
+def ti(score):
+    if 0 <= score <= 3.8:
+        return f"{TICK_EMOJI}"
+    if 3.8 < score <=7.3:
+        return f"{MODERATE_EMOJI}"
+    if score > 7.3:
+        return f"{CROSS_EMOJI}"
+def tbt(score):
+    if 0 <= score <= 300:
+        return f"{TICK_EMOJI}"
+    if 300 < score <= 600:
+        return f"{MODERATE_EMOJI}"
+    if score > 600:
+        return f"{CROSS_EMOJI}"
+def clss(score):
+    if 0 <= score <= 0.1:
+        return f"{TICK_EMOJI}"
+    if 0.1< score <= 0.25:
+        return f"{MODERATE_EMOJI}"
+    if score > 0.25:
+        return f"{CROSS_EMOJI}"
+async def light(url):
+    n=0
+    while n<=5:
+        n=n+1
+        u = f'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}'
+        q = {'strategy': 'DESKTOP',
+             'category': ['PERFORMANCE', 'ACCESSIBILITY', 'BEST_PRACTICES', 'SEO'], }
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(u, params=q) as r:
+                    x = await r.read()
+                    y = x.decode('UTF-8')
+                    data = json.loads(y)
+
+                    fcp_time = data["lighthouseResult"]["audits"]["first-contentful-paint"]["displayValue"]
+                    speed_index = data["lighthouseResult"]["audits"]["speed-index"]["displayValue"]
+                    lcp = data["lighthouseResult"]["audits"]["largest-contentful-paint"]["displayValue"]
+                    time_interactive = data["lighthouseResult"]["audits"]["interactive"]["displayValue"]
+                    blocking_time_duration = data["lighthouseResult"]["audits"]["total-blocking-time"]["displayValue"]
+                    cls = data["lighthouseResult"]["audits"]["cumulative-layout-shift"]["displayValue"]
+
+                    overall_score = int(data["lighthouseResult"]["categories"]["performance"]["score"] * 100)
+                    performance = data["lighthouseResult"]["categories"]['performance']['score'] * 100
+                    accessibility = data["lighthouseResult"]["categories"]['accessibility']['score'] * 100
+                    bestpractices = data["lighthouseResult"]["categories"]['best-practices']['score'] * 100
+                    seo = data["lighthouseResult"]["categories"]['seo']['score'] * 100
+                    fcp_time = float(fcp_time.replace("\xa0s", ""))
+                    speed_index = float(speed_index.replace("\xa0s", ""))
+                    time_interactive = float(time_interactive.replace("\xa0s", ""))
+                    blocking_time_duration = float(blocking_time_duration.replace("\xa0ms", ""))
+                    lcp = float(lcp.replace("\xa0s", ""))
+                    cls = round(float(cls), 2)
+                    return [fcp_time,speed_index,lcp,time_interactive,blocking_time_duration,cls,performance,accessibility,bestpractices,seo,overall_score]
+        except:
+            pass
+    if n>5:
+        return None
 async def imgurl(image):
     url = "https://api.imgur.com/3/image"
     payload = {'image': image}

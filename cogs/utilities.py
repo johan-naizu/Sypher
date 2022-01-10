@@ -1,5 +1,8 @@
 import datetime
 import asyncio
+import json
+
+import aiohttp
 from dislash import ActionRow, Button, ButtonStyle
 import aiomysql
 from discord.ext import commands,tasks
@@ -426,13 +429,133 @@ class Utilities(commands.Cog):
                         inline=True)
         await ctx.send(embed=embed)
 
+    @commands.command(description='Evaluate the quality of your website', usage='measure {url}')
+    async def measure(self,ctx, *, text=None):
+        if not text:
+            await ctx.send(f"{utils.CROSS_EMOJI} **Enter url to audit**")
+            return
+        if utils.regex(text):
+            url = utils.regex(text)[0]
+            check = await utils.ping_url(url)
+            if not check:
+                await ctx.send(
+                    f"{utils.CROSS_EMOJI} **Connection Failed:** Make sure the url is well defined and the server is responding to requests")
+                return
+        else:
+            await ctx.send(f"{utils.CROSS_EMOJI} **Enter url to audit**")
+            return
+
+        m = await ctx.send(f"{utils.LOADING_EMOJI}")
+
+        record = await utils.light(url)
+        if not record:
+            await m.delete()
+            await ctx.send(f"{utils.CROSS_EMOJI} **An unexpected error occurred**")
+            return
+        fcp_time = record[0]
+        speed_index = record[1]
+        lcp = record[2]
+        time_interactive = record[3]
+        blocking_time_duration = record[4]
+        cls = record[5]
+        performance = record[6]
+        accessibility = record[7]
+        bestpractices = record[8]
+        seo = record[9]
+        overall_score = record[10]
+
+        embed = discord.Embed(colour=ENV_COLOUR, title=f"Performance audit for {url}",
+                              description=f"**Overall**\n{utils.emo(overall_score)} Overall Score: {overall_score}\n\n**Scores**\n{utils.emo(performance)} Performance: {performance}\n{utils.emo(accessibility)} Accessibility: {accessibility}\n{utils.emo(bestpractices)} Best Practices: {bestpractices}\n{utils.emo(seo)} SEO: {seo}\n\n"
+                                          f"**Metrics**\n{utils.fcp(fcp_time)} First Contentful Paint: {fcp_time} s\n{utils.si(speed_index)} Speed Index: {speed_index} s\n{utils.lcps(lcp)} Largest Contentful Paint: {lcp} s\n"
+                                          f"{utils.ti(time_interactive)} Time to Interactive: {time_interactive} s\n{utils.tbt(blocking_time_duration)} Total Blocking Time: {blocking_time_duration} ms\n{utils.clss(cls)} Cumulative Layout Shift: {cls}")
+
+        await m.delete()
+
+        await ctx.send(embed=embed)
+
+    @commands.command(description="Shorten url's with cutt.ly", usage='measure {url} {slug}')
+    async def shorten(self,ctx, url=None, slug=None):
+        if not url:
+            embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please provide a url to shorten")
+            await ctx.send(embed=embed)
+            return
+        ur = utils.regex(url)
+        if not ur:
+            embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please provide a valid url")
+            await ctx.send(embed=embed)
+            return
+        if not slug:
+            embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please provide a name for your shortened url")
+            await ctx.send(embed=embed)
+            return
+
+        urll = ur[0]
+        u = f"http://cutt.ly/api/api.php?key={utils.CUTTLY_TOKEN}&short={urll}&name={slug}"
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(u) as r:
+                    x = await r.read()
+                    y = json.loads(x)
+                    if y['url']['status'] == 7:
+                        await ctx.send(f"**Created your vanity url:** <https://cutt.ly/{slug}>")
+                    elif y['url']['status'] == 3:
+                        await ctx.send(f"{utils.CROSS_EMOJI} **That url already exist**")
+                    elif y['url']['status'] == 5:
+                        await ctx.send(f"{utils.CROSS_EMOJI} **the name includes invalid characters**")
+                    else:
+                        await ctx.send(f"{utils.CROSS_EMOJI} **shortening url was unsuccessful**")
+
+        except:
+            await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
+
     @commands.command(description='Invite Sypher to your server', usage='invite')
     async def invite(self,ctx):
         embed = discord.Embed(colour=ENV_COLOUR,
                               description="[Invite Sypher](https://discord.com/oauth2/authorize?client_id=753605471650316379&permissions=4294967287&scope=bot%20applications.commands) | [Support Server](https://discord.gg/CWZMpFF) | [Website](https://sypherbot.in/)")
         await ctx.send(embed=embed)
 
+    def outage_rank(self,outage):
+        if outage == 'partial_outage':
+            return utils.MODERATE_EMOJI
+        elif outage == 'major_outage':
+            return utils.CROSS_EMOJI
+        elif outage == 'operational':
+            return utils.TICK_EMOJI
 
+    @commands.command(description="Current Discord Status", usage='status')
+    async def status(self,ctx):
+        m = await ctx.send(utils.LOADING_EMOJI)
+        list = ['API', "Media Proxy", "Push Notifications", "Search", "Voice", "Third-party"]
+        u = "https://srhpyqt94yxb.statuspage.io/api/v2/summary.json"
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(u) as r:
+                    x = await r.json()
+
+                    embed = discord.Embed(colour=ENV_COLOUR, title=f"{x['status']['description']}")
+                    p = ''
+                    for i in x['components']:
+                        if i['name'] in list:
+                            p = p + f"{self.outage_rank(i['status'])} **{i['name']}:** {i['status']}\n"
+                    embed.description = p
+
+                    if x['incidents']:
+                        embed.add_field(name="Incidents",
+                                        value=f"[{x['incidents'][0]['name']}]({x['incidents'][0]['shortlink']}) ({x['incidents'][0]['impact']})")
+                    else:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get("https://srhpyqt94yxb.statuspage.io/api/v2/incidents.json") as f:
+                                inc = await f.json()
+                                embed.add_field(name="Recent incidents",
+                                                value=f"[{inc['incidents'][0]['name']}]({inc['incidents'][0]['shortlink']}) ({inc['incidents'][0]['impact']})")
+                    await m.delete()
+                    await ctx.send(embed=embed)
+
+
+
+        except:
+            await m.delete()
+            await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
     @commands.command(description='Get results from Wolfram Alpha', usage='wa {query}')
     async def wa(self,ctx, *,arg=None):
         if not arg:
