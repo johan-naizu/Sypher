@@ -1,4 +1,4 @@
-name: CI
+name: Sypher pipeline
 on:
   push:
     branches: [ main ]

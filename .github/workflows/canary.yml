@@ -20,6 +20,6 @@ jobs:
           script: |
             cd Sypher
             screen -X -S Sypher quit
-            git pull
+            git pull origin canary
             bash start.sh
             
