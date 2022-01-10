@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [ canary ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: multiple command
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.CANARY_HOST }}
+          username: ${{ secrets.CANARY_USERNAME }}
+          key: ${{ secrets.CANARY_KEY }}
+          script: |
+            cd Sypher
+            screen -X -S Sypher quit
+            git pull
+            bash start.sh
+            
