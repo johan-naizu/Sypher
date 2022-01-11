@@ -27,6 +27,7 @@ ENV_COLOUR=env['COLOUR']
 TOKEN=env['TOKEN']
 KSOFT_TOKEN=env['ksoft']
 WA_TOKEN=env['wa']
+GOOGLE_TOKEN=env['google']
 CUTTLY_TOKEN=env['cuttly']
 CROSS_EMOJI="<:sypher_cross:833930332604465181>"
 TICK_EMOJI="<:sypher_tick:833930333434019882>"
@@ -180,7 +181,7 @@ async def light(url):
     n=0
     while n<=5:
         n=n+1
-        u = f'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}'
+        u = f'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url={url}&key={GOOGLE_TOKEN}'
         q = {'strategy': 'DESKTOP',
              'category': ['PERFORMANCE', 'ACCESSIBILITY', 'BEST_PRACTICES', 'SEO'], }
         try:
