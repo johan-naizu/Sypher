@@ -578,7 +578,9 @@ class Utilities(commands.Cog):
     @commands.command(aliases=['h'],description="Sypher's help command",usage='help [command]')
     async def help(self,ctx, *, arg=None):
         if not arg:
-            prefix=await utils.fetch_prefix(ctx.guild.id)
+            prefix=';'
+            if ctx.guild:
+                prefix = await utils.fetch_prefix(ctx.guild.id)
             embed = discord.Embed(colour=ENV_COLOUR)
             embed.set_author(name="Sypher help", url='https://www.sypherbot.in/',
                              icon_url=str(self.bot.user.avatar_url_as(format='png')))
@@ -590,9 +592,14 @@ class Utilities(commands.Cog):
                             inline=True)
             embed.add_field(name=f'{utils.POSITION_EMOJI} Levelling Help', value=f'Commands to setup and edit levelling', inline=True)
             embed.add_field(name=f'{utils.CREATED_EMOJI} Configuration Help', value=f'Configure features for you server', inline=True)
+            if ctx.guild:
+                embed.add_field(name=f'​',
+                                value="`{}` ➜ required parameters\n`[]` ➜ optional parameters\n"+f"`{prefix}` ➜ server prefix", inline=False)
+            else:
+                embed.add_field(name=f'​',
+                                value="`{}` ➜ required parameters\n`[]` ➜ optional parameters\n" + f"`{prefix}` ➜ prefix",
+                                inline=False)
 
-            embed.add_field(name=f'​',
-                            value="`{}` ➜ required parameters\n`[]` ➜ optional parameters\n"+f"`{prefix}` ➜ server prefix", inline=False)
             row_of_buttons = ActionRow(
                 Button(
                     style=ButtonStyle.blurple,
@@ -649,9 +656,10 @@ class Utilities(commands.Cog):
                         components=[row_of_buttons]
                     )
 
-                except asyncio.TimeoutError:
-                    row_of_buttons.disable_buttons()
-                    await msg.edit(components=[row_of_buttons])
+                except (asyncio.TimeoutError,discord.NotFound) as error:
+                    if isinstance(error,asyncio.TimeoutError):
+                        row_of_buttons.disable_buttons()
+                        await msg.edit(components=[row_of_buttons])
                     return
 
         else:
