@@ -466,7 +466,7 @@ class Levelling(commands.Cog):
                                             embed=embed,
                                             components=[row_of_buttons_mid]
                                         )
-                                except (asyncio.TimeoutError, discord.NotFound) as error:
+                                except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                                     if isinstance(error, asyncio.TimeoutError):
                                         await msg.edit(components=[])
                                     return

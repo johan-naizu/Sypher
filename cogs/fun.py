@@ -139,7 +139,7 @@ class Fun(commands.Cog):
 
             try:
                 msg = await self.bot.wait_for('message', timeout=60.0, check=check)
-            except (asyncio.TimeoutError, discord.NotFound) as error:
+            except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                 if isinstance(error, asyncio.TimeoutError):
                     e = discord.Embed(colour=ENV_COLOUR,
                                       description=f'{utils.CROSS_EMOJI} You took too long to answer')
@@ -184,7 +184,7 @@ class Fun(commands.Cog):
             try:
                 msg = await self.bot.wait_for('message', timeout=60.0, check=check)
                 guess = msg.content
-            except (asyncio.TimeoutError, discord.NotFound) as error:
+            except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                 if isinstance(error, asyncio.TimeoutError):
                     e = discord.Embed(colour=ENV_COLOUR,
                                       description=f'{utils.CROSS_EMOJI} You took too long to answer')
@@ -355,7 +355,7 @@ class Fun(commands.Cog):
                     player = opponent[player]
                     response = f"**{ctx.author.name} vs {member.name}**\n\n{player.mention}'s move"
                     await msg.edit(content=response, components=[row1, row2, row3])
-            except (asyncio.TimeoutError, discord.NotFound) as error:
+            except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                 if isinstance(error, asyncio.TimeoutError):
                     row1.disable_buttons()
                     row2.disable_buttons()
@@ -528,7 +528,7 @@ class Fun(commands.Cog):
 
 
 
-            except (asyncio.TimeoutError, discord.NotFound) as error:
+            except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                 if isinstance(error, asyncio.TimeoutError):
                     row1.disable_buttons()
                     row2.disable_buttons()
@@ -637,7 +637,7 @@ class Fun(commands.Cog):
                 player = opponent[player]
                 response = f"**{ctx.author.name} vs {member.name}**\n\n{player.mention}'s move {pieces_emoji[player.id]}\n\n{first_line}\n{pallette}\n{last_line}"
                 await msg.edit(content=response, components=[row1, row2])
-            except (asyncio.TimeoutError, discord.NotFound) as error:
+            except (asyncio.TimeoutError, discord.NotFound,BaseException) as error:
                 if isinstance(error, asyncio.TimeoutError):
                     row1.disable_buttons()
                     row2.disable_buttons()
