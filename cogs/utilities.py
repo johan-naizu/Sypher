@@ -656,10 +656,12 @@ class Utilities(commands.Cog):
                         components=[row_of_buttons]
                     )
 
-                except (asyncio.TimeoutError,discord.NotFound,BaseException) as error:
-                    if isinstance(error,asyncio.TimeoutError):
+                except asyncio.TimeoutError:
+                    try:
                         row_of_buttons.disable_buttons()
                         await msg.edit(components=[row_of_buttons])
+                    except:
+                        pass
                     return
 
         else:

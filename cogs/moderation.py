@@ -559,7 +559,10 @@ class Mod(commands.Cog):
 
         except asyncio.TimeoutError:
             e = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} You took to long to respond')
-            await x.edit(embed=e)
+            try:
+                await x.edit(embed=e)
+            except:
+                pass
             return
 
         embed_c = discord.Embed(colour=ENV_COLOUR,
@@ -603,7 +606,10 @@ class Mod(commands.Cog):
                 return
         except asyncio.TimeoutError:
             e = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} You took to long to respond')
-            await x.edit(embed=e)
+            try:
+                await x.edit(embed=e)
+            except:
+                pass
             return
         if reason and proof:
             p = await self.add_gban(reporter=ctx.author, user=user, reason=reason, proof=proof)
