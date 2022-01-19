@@ -473,7 +473,7 @@ class Utilities(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(description="Shorten url's with cutt.ly", usage='measure {url} {slug}')
+    @commands.command(description="Shorten url's with cutt.ly", usage='shorten {url} {slug}')
     async def shorten(self,ctx, url=None, slug=None):
         if not url:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please provide a url to shorten")
