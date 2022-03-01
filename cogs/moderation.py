@@ -491,7 +491,7 @@ class Mod(commands.Cog):
 
 
     async def add_gban(self,reporter, user, reason, proof):
-        headers = {'Authorization': "Bearer 5d9f671cbc80e9d08b027e2e3c61bf567c7b8333"}
+        headers = {'Authorization': f"Bearer {utils.KSOFT_TOKEN}"}
         data = {"user": user.id, "mod": reporter.id, "reason": reason, "proof": proof}
         async with aiohttp.ClientSession() as session:
             async with session.post("https://api.ksoft.si/bans/add", headers=headers, data=data) as r:
