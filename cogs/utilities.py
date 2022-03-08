@@ -89,7 +89,7 @@ class Utilities(commands.Cog):
                                 value=f"{permissions}", inline=True)
             if not banned['bans']:
                 embed.add_field(name=f"{utils.SAFE_EMOJI} Security threshold",
-                                value=f"{banned['trust']['label']}",
+                                value=f"Unlikely to bother",
                                 inline=False)
             else:
                 binfo=''
