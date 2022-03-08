@@ -10,3 +10,5 @@ ksoftapi==0.4.1
 html5lib==1.1
 beautifulsoup4==4.10.0
 dislash.py==1.4.9
+filetype==1.0.8
+

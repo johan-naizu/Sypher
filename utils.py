@@ -258,8 +258,7 @@ async def get_meme():
             async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
                 res = await r.json()
                 result=res['data']['children'][random.randint(0, 25)]['data']
-                embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
-                return [f"https://reddit.com{result['permalink']}",result['title'],resulr['downs'],result['ups'],result['url'],result['num_comments']]
+                return [f"https://reddit.com{result['permalink']}",result['title'],result['downs'],result['ups'],result['url'],result['num_comments']]
     except:
         return None
 
@@ -576,7 +575,7 @@ async def extract_duration(args):
 
 
 async def ban_info(user):
-    headers = {'Authorization': f"{utils.RAVY_TOKEN}"}
+    headers = {'Authorization': f"{RAVY_TOKEN}"}
     async with aiohttp.ClientSession() as session:
         async with session.get(f"https://ravy.org/api/v1/users/{user.id}/bans", headers=headers) as r:
             v = await r.read()

@@ -1,7 +1,6 @@
 import datetime
 import asyncio
 import json
-
 import aiohttp
 from dislash import ActionRow, Button, ButtonStyle
 import aiomysql
@@ -10,6 +9,8 @@ from typing import Union
 import discord
 import utils
 import psutil
+import filetype
+
 ENV_COLOUR=utils.ENV_COLOUR
 
 
@@ -511,6 +512,29 @@ class Utilities(commands.Cog):
 
         except:
             await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
+
+    @commands.command(description="Upload an image to imgur", usage='imgur {image as attachment}')
+    async def imgur(self,ctx):
+        if ctx.message.attachments:
+            file=ctx.message.attachments[0]
+            try:
+                x=await file.read()
+            except:
+                await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
+                return
+            if filetype.is_image(x):
+                data=await utils.imgurl(x)
+            else:
+                await ctx.send(f"{utils.CROSS_EMOJI} **File type not supported**")
+                return
+            if not data:
+                await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
+                return
+            url=data['data']['link']
+            await ctx.send(f"**Here is your imgur url:** <{url}> ")
+        else:
+            await ctx.send(f"{utils.CROSS_EMOJI} **Please provide an image to upload to imgur**")
+
 
     @commands.command(description='Invite Sypher to your server', usage='invite')
     async def invite(self,ctx):
