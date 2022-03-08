@@ -5,12 +5,10 @@ import filetype
 import aiohttp
 import aiomysql
 import discord
-import ksoftapi
 import json
 from discord.ext import commands, tasks
 import utils
 ENV_COLOUR=utils.ENV_COLOUR
-kclient = ksoftapi.Client(utils.KSOFT_TOKEN)
 
 class Mod(commands.Cog):
     def __init__(self, bot):
@@ -490,139 +488,9 @@ class Mod(commands.Cog):
             await ctx.send(embed=embed)
 
 
-    async def add_gban(self,reporter, user, reason, proof):
-        headers = {'Authorization': f"Bearer {utils.KSOFT_TOKEN}"}
-        data = {"user": user.id, "mod": reporter.id, "reason": reason, "proof": proof}
-        async with aiohttp.ClientSession() as session:
-            async with session.post("https://api.ksoft.si/bans/add", headers=headers, data=data) as r:
-                v = await r.read()
-                k = json.loads(v)
-                try:
-                    return k['success']
-                except:
-                    return False
 
-    async def is_banned(self,user):
-        results = await kclient.bans.check(user.id)
-        return results
 
-    @commands.command(description='Report a user to KSoft.Si Bans', usage='report {user}')
-    async def report(self,ctx, user: Union[discord.User,discord.Member,int,str] = None):
-        if not user:
-            embed = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} Please mention the user to report')
-            await ctx.send(embed=embed)
-            return
-        if type(user)==str:
-            u=discord.utils.get(ctx.guild.members,name=str(user))
-            if not u:
-                embed = discord.Embed(colour=ENV_COLOUR,
-                                      description=f"{utils.CROSS_EMOJI} Member Not Found")
-                await ctx.send(embed=embed)
-                return
-            else:
-                user = u
-        if type(user) == int:
-            u = self.bot.get_user(user)
-            if not u:
-                try:
-                    u = await self.bot.fetch_user(user)
-                except discord.NotFound:
-                    embed = discord.Embed(colour=ENV_COLOUR,
-                                          description=f"{utils.CROSS_EMOJI} Member Not Found")
-                    await ctx.send(embed=embed)
-                    return
-            user = u
-        i = await self.is_banned(user)
-        if i:
-            embed = discord.Embed(colour=ENV_COLOUR,
-                                  description=f"{utils.CROSS_EMOJI} This user is already banned globally by KSoft.Si Bans")
-            await ctx.send(embed=embed)
-            return
-        reason = None
-        proof = None
-
-        def check(message):
-            if message.author == ctx.author and message.channel == ctx.channel:
-                return True
-
-        embed_c = discord.Embed(colour=ENV_COLOUR,
-                                description=f'Please enter the **reason** for reporting **{user.name}**')
-        x = await ctx.send(embed=embed_c)
-
-        try:
-            msg = await self.bot.wait_for('message', timeout=60.0, check=check)
-            try:
-                await msg.delete()
-            except:
-                pass
-            reason = msg.content
-
-        except asyncio.TimeoutError:
-            e = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} You took to long to respond')
-            try:
-                await x.edit(embed=e)
-            except:
-                pass
-            return
-
-        embed_c = discord.Embed(colour=ENV_COLOUR,
-                                description=f'Please provide **proof** either as an attachment or an imgur url')
-        await x.edit(embed=embed_c)
-
-        try:
-            msg = await self.bot.wait_for('message', timeout=60.0, check=check)
-            image_url=utils.regex(msg.content)
-            if image_url and 'imgur.' in image_url[0]:
-                proof = image_url[0]
-            elif msg.attachments:
-                file = msg.attachments[0]
-                try:
-                    image= await file.read()
-                except:
-                    await ctx.send(f"{utils.CROSS_EMOJI} Encountered an unknown error")
-                    return
-                if filetype.is_image(image):
-                    data = await utils.imgurl(image)
-                else:
-                    await ctx.send(f"{utils.CROSS_EMOJI} File type not supported")
-                    return
-                if not data:
-                    await ctx.send(f"{utils.CROSS_EMOJI} Encountered an unknown error")
-                    return
-                try:
-                    await msg.delete()
-                except:
-                    pass
-                proof = data['data']['link']
-
-            else:
-                embed = discord.Embed(colour=ENV_COLOUR,
-                                      description=f"{utils.CROSS_EMOJI} Please make sure that proof is an **imgur** url or an image attachment")
-                await x.edit(embed=embed)
-                try:
-                    await msg.delete()
-                except:
-                    pass
-                return
-        except asyncio.TimeoutError:
-            e = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} You took to long to respond')
-            try:
-                await x.edit(embed=e)
-            except:
-                pass
-            return
-        if reason and proof:
-            p = await self.add_gban(reporter=ctx.author, user=user, reason=reason, proof=proof)
-            if not p:
-                embed = discord.Embed(colour=ENV_COLOUR,
-                                      description=f"{utils.CROSS_EMOJI} Global report was unsuccessful")
-                await x.edit(embed=embed)
-                return
-            else:
-                embed = discord.Embed(colour=ENV_COLOUR,
-                                      description=f"{utils.TICK_EMOJI} **{user.name}** has been reported successfully (powered by KSoft.Si)")
-                await x.edit(embed=embed)
-                return
+    
 
     @commands.command(description='Lock a Text Channel', usage='lock [channel]')
     @commands.bot_has_guild_permissions(manage_roles=True)

@@ -40,21 +40,23 @@ class Utilities(commands.Cog):
                 url =object.avatar_url_as(static_format='png')
             except:
                 url = "https://cdn.discordapp.com/embed/avatars/0.png"
-            banned= await utils.is_banned(object)
+            banned= await utils.ban_info(object)
             embed = discord.Embed(color=ENV_COLOUR)
             embed.set_author(name=f"{object}",icon_url=url)
             embed.add_field(name=f"{utils.NAME_EMOJI} Name", value=object.name, inline=True)
             embed.add_field(name=f"{utils.ID_EMOJI} ID", value=object.id, inline=True)
             embed.add_field(name=f"{utils.DISCORD_EMOJI} Joined Discord",
                             value=f"<t:{int(object.created_at.timestamp())}:R>", inline=True)
-            if not banned:
+            if not banned['bans']:
                 embed.add_field(name=f"{utils.SAFE_EMOJI} Security threshold",
-                                value=f"Unlikely to bother (according to [KSoft.Si Bans](https://bans.ksoft.si/share?user={object.id}))",
+                                value=f"{banned['trust']['label']}",
                                 inline=False)
             else:
-                y = await utils.ban_info(object)
+                binfo=''
+                for i in banned['bans']:
+                    binfo+=f"● Banned on {i['provider']} for `{i['reasonKey']}`\n"
                 embed.add_field(name=f"{utils.UNSAFE_EMOJI} Security threshold",
-                                value=f"Banned on [KSoft.Si Bans](https://bans.ksoft.si/share?user={object.id})\n**Reason :** `{y[0]}`\n⎾[proof]({y[1]})⏌",
+                                value=binfo,
                                 inline=False)
             embed.set_thumbnail(url=url)
             await ctx.send(embed=embed)
@@ -65,7 +67,7 @@ class Utilities(commands.Cog):
                 url =object.avatar_url_as(static_format='png')
             except:
                 url = "https://cdn.discordapp.com/embed/avatars/0.png"
-            banned= await utils.is_banned(object)
+            banned= await utils.ban_info(object)
             embed = discord.Embed(color=ENV_COLOUR)
             embed.set_author(name=f"{object}",icon_url=url)
             embed.add_field(name=f"{utils.NAME_EMOJI} Name", value=object.name, inline=True)
@@ -84,14 +86,16 @@ class Utilities(commands.Cog):
                 permissions=' | '.join(list)
                 embed.add_field(name=f"{utils.UTILITIES_EMOJI} Permissions",
                                 value=f"{permissions}", inline=True)
-            if not banned:
+            if not banned['bans']:
                 embed.add_field(name=f"{utils.SAFE_EMOJI} Security threshold",
-                                value=f"Unlikely to bother (according to [KSoft.Si Bans](https://bans.ksoft.si/share?user={object.id}))",
+                                value=f"{banned['trust']['label']}",
                                 inline=False)
             else:
-                y = await utils.ban_info(object)
+                binfo=''
+                for i in banned['bans']:
+                    binfo+=f"● Banned on {i['provider']} for `{i['reasonKey']}`\n"
                 embed.add_field(name=f"{utils.UNSAFE_EMOJI} Security threshold",
-                                value=f"Banned on [KSoft.Si Bans](https://bans.ksoft.si/share?user={object.id})\n**Reason :** `{y[0]}`\n⎾[proof]({y[1]})⏌",
+                                value=binfo,
                                 inline=False)
             embed.set_thumbnail(url=url)
             await ctx.send(embed=embed)

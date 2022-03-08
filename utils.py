@@ -1,6 +1,7 @@
 import datetime
 import io
 import re
+from unittest import result
 import aiofiles
 import html5lib
 import ksoftapi
@@ -26,6 +27,8 @@ DB_USER=env['database']['user']
 ENV_COLOUR=env['COLOUR']
 TOKEN=env['TOKEN']
 KSOFT_TOKEN=env['ksoft']
+RAVY_TOKEN=env['ravy']
+IMGUR_TOKEN=env['imgur']
 WA_TOKEN=env['wa']
 GOOGLE_TOKEN=env['google']
 CUTTLY_TOKEN=env['cuttly']
@@ -218,7 +221,7 @@ async def imgurl(image):
     url = "https://api.imgur.com/3/image"
     payload = {'image': image}
     headers = {
-        'Authorization': 'Client-ID d32460c57e0bff9'
+        'Authorization': f'Client-ID {IMGUR_TOKEN}'
     }
     try:
         async with aiohttp.ClientSession() as session:
@@ -251,11 +254,14 @@ async def get_topic():
 
 async def get_meme():
     try:
-        results = await kclient.images.random_meme()
-    except ksoftapi.NoResults:
+        async with aiohttp.ClientSession() as cs:
+            async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
+                res = await r.json()
+                result=res['data']['children'][random.randint(0, 25)]['data']
+                embed.set_image(url=res['data']['children'] [random.randint(0, 25)]['data']['url'])
+                return [f"https://reddit.com{result['permalink']}",result['title'],resulr['downs'],result['ups'],result['url'],result['num_comments']]
+    except:
         return None
-    else:
-        return [results.source, results.title, results.downvotes, results.upvotes, results.image_url, results.comments]
 
 async def get_riddle():
     async with aiofiles.open('resources/riddles.json', mode='r') as p:
@@ -569,16 +575,16 @@ async def extract_duration(args):
     return [duration,unit,text]
 
 
-async def is_banned(user):
-    results = await kclient.bans.check(user.id)
-    return results
-
-
 async def ban_info(user):
-    results = await kclient.bans.info(user.id)
-    return [results.reason, results.proof]
-
-
+    headers = {'Authorization': f"{utils.RAVY_TOKEN}"}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"https://ravy.org/api/v1/users/{user.id}/bans", headers=headers) as r:
+            v = await r.read()
+            k = json.loads(v)
+            try:
+                return k
+            except:
+                return None
 
 
 def partial_emoji_converter(argument: str):

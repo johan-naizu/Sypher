@@ -117,7 +117,7 @@ class Fun(commands.Cog):
             return
         embed = discord.Embed(colour=ENV_COLOUR, title=meme[1], url=meme[0])
         embed.set_image(url=meme[4])
-        embed.set_footer(text=f"👍🏻 {meme[3]} | 👎🏻 {meme[2]} | 💬 {meme[5]} | powered by KSoft.Si")
+        embed.set_footer(text=f"👍🏻 {meme[3]} | 👎🏻 {meme[2]} | 💬 {meme[5]}")
         await ctx.send(embed=embed)
 
     @commands.command(description='Gives random riddles for fun', usage='riddle',aliases=['riddles'])
