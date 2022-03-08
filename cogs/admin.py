@@ -182,7 +182,6 @@ class admin(commands.Cog):
 
                     msg = msg + f"\n\n⏱{t}"
                     msg = msg.replace(utils.TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
-                    msg = msg.replace(utils.KSOFT_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     msg = msg.replace(utils.WA_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     msg = msg.replace(utils.DB_HOST, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     msg = msg.replace(utils.DB_USER, '🆁🅴🅳🅰🅲🆃🅴🅳')
@@ -198,7 +197,6 @@ class admin(commands.Cog):
             msg = msg + f"**Error:**\n\n```py\n{e.__class__.__name__}: {e}```"
             msg = msg + f"\n\n⏱{t}"
             msg = msg.replace(utils.TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
-            msg = msg.replace(utils.KSOFT_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.WA_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.DB_HOST, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.DB_USER, '🆁🅴🅳🅰🅲🆃🅴🅳')

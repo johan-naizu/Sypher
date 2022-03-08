@@ -26,7 +26,6 @@ DB_HOST=env['database']['host']
 DB_USER=env['database']['user']
 ENV_COLOUR=env['COLOUR']
 TOKEN=env['TOKEN']
-KSOFT_TOKEN=env['ksoft']
 RAVY_TOKEN=env['ravy']
 IMGUR_TOKEN=env['imgur']
 WA_TOKEN=env['wa']
@@ -93,7 +92,6 @@ MODERATE_EMOJI='<:moderate:930024141338333204>'
 
 
 
-kclient = ksoftapi.Client(KSOFT_TOKEN)
 
 
 async def fetch_prefix(id):
