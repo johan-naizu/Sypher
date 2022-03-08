@@ -165,11 +165,14 @@ class admin(commands.Cog):
 
                 msg = msg + f"\n\n⏱{t}"
                 msg=msg.replace(utils.TOKEN,'🆁🅴🅳🅰🅲🆃🅴🅳')
-                msg = msg.replace(utils.KSOFT_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 msg = msg.replace(utils.WA_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 msg = msg.replace(utils.DB_HOST, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 msg = msg.replace(utils.DB_USER, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 msg = msg.replace(utils.DB_PASSWORD, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                msg = msg.replace(utils.RAVY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                msg = msg.replace(utils.IMGUR_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                msg = msg.replace(utils.GOOGLE_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                msg = msg.replace(utils.CUTTLY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                 await ctx.send(msg)
             else:
                 if not result and not type(result) in [str, int, list, tuple, dict, float,bool,set,complex,range,frozenset]:
@@ -186,6 +189,10 @@ class admin(commands.Cog):
                     msg = msg.replace(utils.DB_HOST, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     msg = msg.replace(utils.DB_USER, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     msg = msg.replace(utils.DB_PASSWORD, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                    msg = msg.replace(utils.RAVY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                    msg = msg.replace(utils.IMGUR_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                    msg = msg.replace(utils.GOOGLE_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+                    msg = msg.replace(utils.CUTTLY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
                     await ctx.send(msg)
         except Exception as e:
             after = datetime.datetime.utcnow()
@@ -201,6 +208,10 @@ class admin(commands.Cog):
             msg = msg.replace(utils.DB_HOST, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.DB_USER, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.DB_PASSWORD, '🆁🅴🅳🅰🅲🆃🅴🅳')
+            msg = msg.replace(utils.RAVY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+            msg = msg.replace(utils.IMGUR_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+            msg = msg.replace(utils.GOOGLE_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
+            msg = msg.replace(utils.CUTTLY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
             await ctx.send(msg)
 def setup(bot):
     bot.add_cog(admin(bot))
