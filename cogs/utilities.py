@@ -55,7 +55,7 @@ class Utilities(commands.Cog):
             else:
                 binfo=''
                 for i in banned['bans']:
-                    binfo+=f"● Banned on {i['provider']} for `{i['reasonKey']}`\n"
+                    binfo+=f"● Banned on the `{i['provider']}` ban list for `{i['reasonKey']}`\n"
                 embed.add_field(name=f"{utils.UNSAFE_EMOJI} Security threshold",
                                 value=binfo,
                                 inline=False)
@@ -94,7 +94,7 @@ class Utilities(commands.Cog):
             else:
                 binfo=''
                 for i in banned['bans']:
-                    binfo+=f"● Banned on {i['provider']} for `{i['reasonKey']}`\n"
+                    binfo+=f"● Banned on the `{i['provider']}` ban list for `{i['reasonKey']}`\n"
                 embed.add_field(name=f"{utils.UNSAFE_EMOJI} Security threshold",
                                 value=binfo,
                                 inline=False)
