@@ -41,7 +41,7 @@ class Events(commands.Cog):
         embed = discord.Embed(color=ENV_COLOUR, title='Thanks for adding me to your server:exclamation::blush: ',
                               description="For help use command `;help`\n"
                                           "To join our server and to contact our support team [**click here**](https://discord.gg/PBv6gzZ)\n"
-                                          "To add Sypher to a server [**click here**](https://discord.com/oauth2/authorize?client_id=753605471650316379&permissions=4294967287&scope=bot%20applications.commands)\n"
+                                          "To add Sypher to a server [**click here**](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands)\n"
                                           "To visit our website [**click here**](https://www.sypherbot.in/)\n\n"
                                           'Enjoy your day :dove: :white_sun_small_cloud: \nThank you:innocent:')
         embed.set_author(name='Sypher', icon_url=str(self.bot.user.avatar_url_as(format='png')))

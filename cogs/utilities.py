@@ -206,7 +206,7 @@ class Utilities(commands.Cog):
         embed.add_field(name=f"{utils.SERVER_EMOJI} Servers", value=f"Helping `{len(self.bot.guilds)}` servers", inline=True)
         embed.add_field(name=f"{utils.MEMBERS_EMOJI} Members", value=f'Serving `{len(set(self.bot.get_all_members()))}` members',inline=True)
         embed.add_field(name=f"{utils.SUPPORT_EMOJI} Support server",value=f'[click here](https://discord.gg/CWZMpFF) to join the support server', inline=True)
-        embed.add_field(name=f"{utils.DISCORD_EMOJI} Add to server",value=f'[click here](https://discord.com/oauth2/authorize?client_id=753605471650316379&permissions=4294967287&scope=bot%20applications.commands) to add the bot',inline=True)
+        embed.add_field(name=f"{utils.DISCORD_EMOJI} Add to server",value=f'[click here](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands) to add the bot',inline=True)
         embed.add_field(name=f"{utils.WEBSITE_EMOJI} Website",value=f'[click here](https://sypherbot.in/) to visit website ',inline=True)
         owner=await utils.get_user(self.bot,721208659136217090)
         embed.add_field(name=f"{utils.CREATED_EMOJI} Developed by", value=f'[{owner}](https://johan.naizu.in)', inline=True)
@@ -539,7 +539,7 @@ class Utilities(commands.Cog):
     @commands.command(description='Invite Sypher to your server', usage='invite')
     async def invite(self,ctx):
         embed = discord.Embed(colour=ENV_COLOUR,
-                              description="[Invite Sypher](https://discord.com/oauth2/authorize?client_id=753605471650316379&permissions=4294967287&scope=bot%20applications.commands) | [Support Server](https://discord.gg/CWZMpFF) | [Website](https://sypherbot.in/)")
+                              description="[Invite Sypher](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands) | [Support Server](https://discord.gg/CWZMpFF) | [Website](https://sypherbot.in/)")
         await ctx.send(embed=embed)
 
     def outage_rank(self,outage):
