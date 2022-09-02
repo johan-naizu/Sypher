@@ -28,15 +28,14 @@ class admin(commands.Cog):
                 await ctx.send(f"{utils.CROSS_EMOJI} **Invalid User**")
                 return
         with open('../resources/env.json') as p:
-            contents = p.read()
-            record = json.loads(contents)
+            record = json.loads(p)
         if 'admins' in record:
             record['admins'].append(member.id)
         else:
             record['admins'] = []
             record['admins'].append(member.id)
-        with open('../resources/env.json', 'wb') as p:
-            p.write(json.dumps(record))
+        with open('../resources/env.json', 'w') as p:
+            json.dumps(record)
         await ctx.send(f"{utils.TICK_EMOJI} **{member.mention} has been whitelisted**")
         return
     @commands.command(hidden=True)
@@ -56,8 +55,7 @@ class admin(commands.Cog):
                 await ctx.send(f"{utils.CROSS_EMOJI} **Invalid User**")
                 return
         with open('../resources/env.json') as p:
-            contents = p.read()
-            record = json.loads(contents)
+            record = json.loads(p)
         if 'admins' in record:
             if not member.id in record['admins']:
                 await ctx.send(f"{utils.CROSS_EMOJI} **This user is not whitelisted**")
@@ -68,8 +66,8 @@ class admin(commands.Cog):
             await ctx.send(f"{utils.CROSS_EMOJI} **This user is not whitelisted**")
             return
 
-        with open('../resources/env.json', 'wb') as p:
-            p.write(json.dumps(record))
+        with open('../resources/env.json', 'w') as p:
+            json.dumps(record)
         await ctx.send(f"{utils.TICK_EMOJI} **{member.mention} is no longer an admin**")
         return
 
