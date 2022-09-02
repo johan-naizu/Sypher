@@ -27,16 +27,16 @@ class admin(commands.Cog):
             except:
                 await ctx.send(f"{utils.CROSS_EMOJI} **Invalid User**")
                 return
-        async with aiofiles.open('../resources/env.json',mode='r') as p:
-            contents = await p.read()
+        with open('../resources/env.json') as p:
+            contents = p.read()
             record = json.loads(contents)
         if 'admins' in record:
             record['admins'].append(member.id)
         else:
             record['admins'] = []
             record['admins'].append(member.id)
-        async with aiofiles.open('../resources/env.json', 'wb') as p:
-            await p.write(json.dumps(record))
+        with open('../resources/env.json', 'wb') as p:
+            p.write(json.dumps(record))
         await ctx.send(f"{utils.TICK_EMOJI} **{member.mention} has been whitelisted**")
         return
     @commands.command(hidden=True)
@@ -55,8 +55,8 @@ class admin(commands.Cog):
             except:
                 await ctx.send(f"{utils.CROSS_EMOJI} **Invalid User**")
                 return
-        async with aiofiles.open('../resources/env.json', mode='r') as p:
-            contents = await p.read()
+        with open('../resources/env.json') as p:
+            contents = p.read()
             record = json.loads(contents)
         if 'admins' in record:
             if not member.id in record['admins']:
@@ -68,8 +68,8 @@ class admin(commands.Cog):
             await ctx.send(f"{utils.CROSS_EMOJI} **This user is not whitelisted**")
             return
 
-        async with aiofiles.open('../resources/env.json', 'wb') as p:
-            await p.write(json.dumps(record))
+        with open('../resources/env.json', 'wb') as p:
+            p.write(json.dumps(record))
         await ctx.send(f"{utils.TICK_EMOJI} **{member.mention} is no longer an admin**")
         return
 
