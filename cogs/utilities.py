@@ -629,7 +629,7 @@ class Utilities(commands.Cog):
                                 value="`{}` ➜ required parameters\n`[]` ➜ optional parameters\n" + f"`{prefix}` ➜ prefix",
                                 inline=False)
 
-            row_of_buttons = ActionRow(
+            row_of_buttons = ActionRow([
                 Button(
                     style=ButtonStyle.blurple,
                     custom_id="Mod",
@@ -654,7 +654,7 @@ class Utilities(commands.Cog):
                     style=ButtonStyle.blurple,
                     custom_id="Configuration",
                     emoji=utils.CREATED_EMOJI
-                )
+                )]
 
             )
             msg=await ctx.send(embed=embed,components=[row_of_buttons])
