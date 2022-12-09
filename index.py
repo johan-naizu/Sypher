@@ -2,6 +2,7 @@ import discord
 import aiomysql
 import os
 import utils
+import asyncio
 from discord.ext import commands
 DB_PASSWORD=utils.DB_PASSWORD
 DB_HOST=utils.DB_HOST
@@ -46,13 +47,15 @@ intents.presences=True
 intents.message_content=True
 bot= commands.AutoShardedBot(command_prefix=get_prefix, intents=intents, case_insensitive=True)
 bot.remove_command('help')
+async def load_extensions():
+    for file in os.listdir("cogs"):
+        if file.endswith(".py"):
+            name = file[:-3]
+            await bot.load_extension(f"cogs.{name}")
+async def main():
+    async with bot:
+        await load_extensions()
+        await bot.start(TOKEN)
 
-for file in os.listdir("cogs"):
-    if file.endswith(".py"):
-        name = file[:-3]
-        await bot.load_extension(f"cogs.{name}")
+asyncio.run(main())
 
-try:
-    bot.run(TOKEN)
-except Exception as e:
-    print(f"Error when logging in: {e}")

@@ -720,5 +720,5 @@ class Utilities(commands.Cog):
 
 
 
-def setup(bot):
-    bot.add_cog(Utilities(bot))
+async def setup(bot):
+    await bot.add_cog(Utilities(bot))

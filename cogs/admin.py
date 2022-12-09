@@ -217,5 +217,5 @@ class admin(commands.Cog):
             msg = msg.replace(utils.GOOGLE_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
             msg = msg.replace(utils.CUTTLY_TOKEN, '🆁🅴🅳🅰🅲🆃🅴🅳')
             await ctx.send(msg)
-def setup(bot):
-    bot.add_cog(admin(bot))
+async def setup(bot):
+    await bot.add_cog(admin(bot))
