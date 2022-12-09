@@ -70,6 +70,12 @@ class admin(commands.Cog):
             json.dumps(record)
         await ctx.send(f"{utils.TICK_EMOJI} **{member.mention} is no longer an admin**")
         return
+    @commands.command(hidden=True)
+    @commands.check(utils.is_bot_admin)
+    async def sync(self, ctx):
+        synced = await ctx.bot.tree.sync()
+        await ctx.send(f"{utils.TICK_EMOJI} **Synced {len(synced)} commands**")
+
 
     def insert_returns(self,body):
         # insert return stmt if the last expression is a expression statement

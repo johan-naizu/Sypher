@@ -250,8 +250,8 @@ class Fun(commands.Cog):
                     except:
                         pass
 
-    @commands.command(description='Gives random jokes', usage='joke')
-    async def joke(self, ctx):
+    @commands.hybrid_command(description='Gives random jokes', usage='joke')
+    async def joke(self, ctx:commands.Context):
         joke=await utils.get_joke()
         setup=joke[0]
         punchline=joke[1]
