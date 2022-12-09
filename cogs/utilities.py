@@ -654,7 +654,7 @@ class Utilities(commands.Cog):
                     style=ButtonStyle.blurple,
                     custom_id="Configuration",
                     emoji=utils.CREATED_EMOJI
-                )],type=discord.ComponentType.button
+                )]
 
             )
             msg=await ctx.send(embed=embed,components=[row_of_buttons])
