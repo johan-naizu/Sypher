@@ -3,7 +3,6 @@ import aiomysql
 import os
 import utils
 from discord.ext import commands
-from dislash import InteractionClient
 DB_PASSWORD=utils.DB_PASSWORD
 DB_HOST=utils.DB_HOST
 DB_USER=utils.DB_USER
@@ -44,7 +43,6 @@ async def get_prefix(client, message):
 intents = discord.Intents.default()
 intents.members = True
 bot= commands.AutoShardedBot(command_prefix=get_prefix, intents=intents, case_insensitive=True)
-inter_client = InteractionClient(bot)
 bot.remove_command('help')
 
 for file in os.listdir("cogs"):

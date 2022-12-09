@@ -2,7 +2,7 @@ import datetime
 import asyncio
 import json
 import aiohttp
-from dislash import ActionRow, Button, ButtonStyle
+from discord import ActionRow, Button, ButtonStyle
 import aiomysql
 from discord.ext import commands,tasks
 from typing import Union

@@ -6,7 +6,7 @@ import aiomysql
 import random
 import discord
 import utils
-from dislash import ActionRow, Button, ButtonStyle
+from discord import ActionRow, Button, ButtonStyle
 from typing import Union
 
 
