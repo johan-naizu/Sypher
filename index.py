@@ -50,7 +50,7 @@ bot.remove_command('help')
 for file in os.listdir("cogs"):
     if file.endswith(".py"):
         name = file[:-3]
-        bot.load_extension(f"cogs.{name}")
+        await bot.load_extension(f"cogs.{name}")
 
 try:
     bot.run(TOKEN)
