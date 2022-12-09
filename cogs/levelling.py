@@ -281,7 +281,7 @@ class Levelling(commands.Cog):
                         else:
                             interval = self.higher_limit(level)
                             current_xp = int(result2[0][1])
-                        x = await self.Image_process(str(member), member.avatar_url_as(format='png'), current_xp, interval, level, rank)
+                        x = await self.Image_process(str(member), member.avatar.with_format('png').url, current_xp, interval, level, rank)
                         await ctx.send(file=discord.File(fp=x, filename='rank.png'))
                     else:
                         embed = discord.Embed(colour=utils.ENV_COLOUR,

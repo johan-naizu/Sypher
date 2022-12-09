@@ -38,7 +38,7 @@ class Utilities(commands.Cog):
         if type=='user':
 
             try:
-                url =object.avatar_url_as(static_format='png')
+                url =object.avatar.with_format('png').url
             except:
                 url = "https://cdn.discordapp.com/embed/avatars/0.png"
             banned= await utils.ban_info(object)
@@ -65,7 +65,7 @@ class Utilities(commands.Cog):
 
         if type=='member':
             try:
-                url =object.avatar_url_as(static_format='png')
+                url =object.avatar.with_format('png').url
             except:
                 url = "https://cdn.discordapp.com/embed/avatars/0.png"
             banned= await utils.ban_info(object)
@@ -197,7 +197,7 @@ class Utilities(commands.Cog):
     async def stats(self, ctx):
         object=self.bot.user
         try:
-            url = object.avatar_url_as(static_format='png')
+            url = object.avatar.with_format('png').url
         except:
             url = "https://cdn.discordapp.com/embed/avatars/0.png"
         embed = discord.Embed(color=ENV_COLOUR)
@@ -288,7 +288,7 @@ class Utilities(commands.Cog):
     @commands.command(description='Gives the current bot latency',usage='ping')
     async def ping(self,ctx):
         embed = discord.Embed(title=f'{utils.PING_EMOJI} Ping!', color=ENV_COLOUR,)
-        embed.set_thumbnail(url=self.bot.user.avatar_url_as(static_format='png'))
+        embed.set_thumbnail(url=self.bot.user.avatar.with_format('png').url)
         embed.add_field(name=f'{utils.SIGNAL_EMOJI} Latency', value=(f'`{round(self.bot.latency * 1000)}`ms'), inline=True)
         embed.add_field(name=f'{utils.PROCESSOR_EMOJI} RAM Usage',value=(f'RAM → `{round(psutil.virtual_memory()[2])}`%'),inline=True)
         embed.add_field(name=f"{utils.DEPLOY_EMOJI} Last Deployed", value=f"<t:{int(utils.start_time.timestamp())}:R>",inline=True)
@@ -611,8 +611,8 @@ class Utilities(commands.Cog):
                 prefix = await utils.fetch_prefix(ctx.guild.id)
             embed = discord.Embed(colour=ENV_COLOUR)
             embed.set_author(name="Sypher help", url='https://www.sypherbot.in/',
-                             icon_url=str(self.bot.user.avatar_url_as(format='png')))
-            embed.set_thumbnail(url=str(self.bot.user.avatar_url_as(format='png')))
+                             icon_url=str(self.bot.user.avatar.with_format('png').url))
+            embed.set_thumbnail(url=str(self.bot.user.avatar.with_format('png').url))
             embed.add_field(name=f'{utils.OWNER_EMOJI} Moderation Help', value=f'Commands to moderate your server', inline=True)
             embed.add_field(name=f'{utils.ROLL_EMOJI} Fun Help', value=f'Games and other fun commands',
                             inline=True)

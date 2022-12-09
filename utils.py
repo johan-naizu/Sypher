@@ -424,7 +424,7 @@ async def log(bot,member,action):
                     embed = discord.Embed(colour=ENV_COLOUR, description=f'{member.mention} {action}',
                                           timestamp=datetime.datetime.utcnow())
                     embed.set_author(name=f"{member} | {member.id}",
-                                     icon_url=str(member.avatar_url_as(format='png')))
+                                     icon_url=str(member.avatar.with_format('png').url))
                     await channel.send(embed=embed)
 
 async def extract_info(ctx,bot,input):

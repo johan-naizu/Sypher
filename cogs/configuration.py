@@ -304,7 +304,7 @@ class Configuration(commands.Cog):
                             if message.attachments:
                                 embed.set_image(url=message.attachments[0].proxy_url)
                             embed.set_author(name=f"{message.author.name}",
-                                             icon_url=str(message.author.avatar_url_as(format='png')))
+                                             icon_url=str(message.author.avatar.with_format('png').url))
                             await channel2.send(embed=embed)
 
     @commands.command(description='Enable or disable logging',usage='logging {enable/disable} [channel]')
@@ -599,7 +599,7 @@ class Configuration(commands.Cog):
                                               timestamp=datetime.datetime.utcnow())
                         embed.add_field(name="Content", value=f"{message.content}", inline=False)
                         embed.set_author(name=f"{message.author} | {message.author.id}",
-                                         icon_url=str(message.author.avatar_url_as(format='png')))
+                                         icon_url=str(message.author.avatar.with_format('png').url))
                         if message.attachments:
                             embed.set_image(url=message.attachments[0].proxy_url)
                         await channel.send(embed=embed)
@@ -626,7 +626,7 @@ class Configuration(commands.Cog):
                         if after.content:
                             embed.add_field(name="After", value=f"{after.content}", inline=False)
                         embed.set_author(name=f"{before.author} | {before.author.id}",
-                                         icon_url=str(before.author.avatar_url_as(format='png')))
+                                         icon_url=str(before.author.avatar.with_format('png').url))
                         await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -644,7 +644,7 @@ class Configuration(commands.Cog):
                         embed = discord.Embed(colour=ENV_COLOUR, description=f'{user.mention} was banned',
                                               timestamp=datetime.datetime.utcnow())
                         embed.set_author(name=f"{user} | {user.id}",
-                                         icon_url=str(user.avatar_url_as(format='png')))
+                                         icon_url=str(user.avatar.with_format('png').url))
                         await channel.send(embed=embed)
 
     @commands.Cog.listener()
@@ -666,7 +666,7 @@ class Configuration(commands.Cog):
                         embed = discord.Embed(colour=ENV_COLOUR, description=f'{member.mention} has left the server',
                                               timestamp=datetime.datetime.utcnow())
                         embed.set_author(name=f"{member} | {member.id}",
-                                         icon_url=str(member.avatar_url_as(format='png')))
+                                         icon_url=str(member.avatar.with_format('png').url))
                         await channel.send(embed=embed)
 
 

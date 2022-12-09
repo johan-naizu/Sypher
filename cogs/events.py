@@ -44,7 +44,7 @@ class Events(commands.Cog):
                                           "To add Sypher to a server [**click here**](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands)\n"
                                           "To visit our website [**click here**](https://www.sypherbot.in/)\n\n"
                                           'Enjoy your day :dove: :white_sun_small_cloud: \nThank you:innocent:')
-        embed.set_author(name='Sypher', icon_url=str(self.bot.user.avatar_url_as(format='png')))
+        embed.set_author(name='Sypher', icon_url=str(self.bot.user.avatar.with_format('png').url))
         for channel in guild.text_channels:
             try:
                 await channel.send(embed=embed)
