@@ -136,7 +136,7 @@ class Configuration(commands.Cog):
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
     @greeting.autocomplete('arg')
-    async def greeting_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def greeting_autocomplete(self,interaction: discord.Interaction,current: str):
         args = ["enable","disable"]
         return [
             app_commands.Choice(name=arg, value=arg)
@@ -271,7 +271,7 @@ class Configuration(commands.Cog):
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
     @starboard.autocomplete('arg')
-    async def starboard_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def starboard_autocomplete(self,interaction: discord.Interaction,current: str):
         args = ["enable","disable"]
         return [
             app_commands.Choice(name=arg, value=arg)
@@ -415,7 +415,7 @@ class Configuration(commands.Cog):
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
     @logging.autocomplete('arg')
-    async def logging_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def logging_autocomplete(self,interaction: discord.Interaction,current: str):
         args = ["enable","disable"]
         return [
             app_commands.Choice(name=arg, value=arg)
@@ -479,7 +479,7 @@ class Configuration(commands.Cog):
                 await ctx.send(embed=embed)
                 return
     @autorole.autocomplete('action')
-    async def autorole_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def autorole_autocomplete(self,interaction: discord.Interaction,current: str):
         actions = ["add","remove"]
         return [
             app_commands.Choice(name=action, value=action)
@@ -609,13 +609,13 @@ class Configuration(commands.Cog):
         pool.close()
         await pool.wait_closed()
     @permission.autocomplete('action')
-    async def permission_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def permission_autocomplete(self,interaction: discord.Interaction,current: str):
         actions = ["add","remove"]
         return [
             app_commands.Choice(name=action, value=action)
             for action in actions if current.lower() in action.lower()]
     @permission.autocomplete('permission')
-    async def permission_autocomplete(self,interaction: discord.Interaction,current: str) -> list[app_commands.Choice[str]]:
+    async def permission_autocomplete(self,interaction: discord.Interaction,current: str):
         actions = ["admin","moderator"]
         return [
             app_commands.Choice(name=action, value=action)

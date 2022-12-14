@@ -240,7 +240,7 @@ class Levelling(commands.Cog):
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`,`reset`)')
             await ctx.send(embed=embed)
     @levelling.autocomplete('arg')
-    async def levelling_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+    async def levelling_autocomplete(self,interaction: discord.Interaction,current: str,):
         args = ["enable","disable","reset"]
         return [
             app_commands.Choice(name=arg, value=arg)
