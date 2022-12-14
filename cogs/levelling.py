@@ -6,7 +6,7 @@ import aiomysql
 import random
 import discord
 import utils
-from discord import ActionRow, Button, ButtonStyle
+from discord import ActionRow, Button, ButtonStyle,app_commands
 from typing import Union
 
 
@@ -113,9 +113,10 @@ class Levelling(commands.Cog):
         pool.close()
         await pool.wait_closed()
 
-    @commands.command(description='Enable,disable or reset levelling', usage='levelling {enable/disable/reset} [channel]')
+    @commands.hybrid_command(description='Enable,disable or reset levelling', usage='levelling {enable/disable/reset} [channel]')
     @utils.is_admin()
-    async def levelling(self,ctx, arg=None, channel: discord.TextChannel = None):
+    async def levelling(self,ctx:commands.Context, arg:str, channel: discord.TextChannel = None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         if not ctx.guild:
@@ -238,9 +239,16 @@ class Levelling(commands.Cog):
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`,`reset`)')
             await ctx.send(embed=embed)
-
-    @commands.command(description='Get the rank card of a member', usage='rank [member]')
-    async def rank(self,ctx, member: Union[discord.Member, int, str] = None):
+    @levelling.autocomplete('arg')
+    async def levelling_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        args = ["enable","disable","reset"]
+        return [
+            app_commands.Choice(name=arg, value=arg)
+            for arg in args if current.lower() in arg.lower()
+        ]
+    @commands.hybrid_command(description='Get the rank card of a member', usage='rank [member]')
+    async def rank(self,ctx:commands.Context, member: discord.Member= None):
+        await ctx.defer()
         if not ctx.guild:
             return
         if not member:
@@ -281,7 +289,7 @@ class Levelling(commands.Cog):
                         else:
                             interval = self.higher_limit(level)
                             current_xp = int(result2[0][1])
-                        x = await self.Image_process(str(member), member.avatar.with_format('png').url, current_xp, interval, level, rank)
+                        x = await self.Image_process(str(member), member.avatar.with_format('png'), current_xp, interval, level, rank)
                         await ctx.send(file=discord.File(fp=x, filename='rank.png'))
                     else:
                         embed = discord.Embed(colour=utils.ENV_COLOUR,
@@ -344,8 +352,9 @@ class Levelling(commands.Cog):
 
             return (output_buffer)
 
-    @commands.command(description='Get the leaderboard for this server', usage='leaderboard',aliases=['lb'])
-    async def leaderboard(self,ctx):
+    @commands.hybrid_command(description='Get the leaderboard for this server', usage='leaderboard',aliases=['lb'])
+    async def leaderboard(self,ctx:commands.Context):
+        await ctx.defer()
         if ctx.guild:
             pool = await aiomysql.create_pool(host=utils.DB_HOST, user=utils.DB_USER,
                                               password=utils.DB_PASSWORD, db='servers', autocommit=True)
@@ -373,32 +382,7 @@ class Levelling(commands.Cog):
                                 last_page = len(result2) / 10
                             else:
                                 last_page = len(result2) // 10 + 1
-                            row_of_buttons_first = ActionRow(
-                                Button(
-                                    style=ButtonStyle.blurple,
-                                    label='next',
-                                    custom_id="next"
-                                )
-                            )
-                            row_of_buttons_mid = ActionRow(
-                                Button(
-                                    style=ButtonStyle.blurple,
-                                    label='previous',
-                                    custom_id="previous"
-                                ),
-                                Button(
-                                    style=ButtonStyle.blurple,
-                                    label='next',
-                                    custom_id="next"
-                                )
-                            )
-                            row_of_buttons_last = ActionRow(
-                                Button(
-                                    style=ButtonStyle.blurple,
-                                    label='previous',
-                                    custom_id="previous"
-                                )
-                            )
+                            
                             if not result2:
                                 embed = discord.Embed(colour=utils.ENV_COLOUR,
                                                       description=f'{utils.CROSS_EMOJI} No one has been ranked yet')
@@ -406,7 +390,7 @@ class Levelling(commands.Cog):
                                 return
                             embed = discord.Embed(colour=utils.ENV_COLOUR)
                             embed.set_author(name=f'Leaderboard for {ctx.guild.name}',
-                                             icon_url=str(ctx.guild.icon_url))
+                                             icon_url=str(ctx.guild.icon.url))
                             limit = 10
                             if len(result2) < 10:
                                 limit = len(result2)
@@ -420,60 +404,10 @@ class Levelling(commands.Cog):
                                     embed=embed
                                 )
                                 return
-                            msg = await ctx.send(
-                                embed=embed,
-                                components=[row_of_buttons_first]
-                            )
+                            view=LBButtons(bot=self.bot,author=ctx.author,ctx=ctx,result=result2,last_page=last_page)
+                            view.msg= await ctx.send(embed=embed,view=view)
 
-                            def check(inter):
-                                if inter.message.id == msg.id and inter.author.id == ctx.author.id:
-                                    return True
-
-                            while True:
-                                try:
-                                    inter = await ctx.wait_for_button_click(check, timeout=60.0)
-                                    await inter.reply(type=7)
-                                    # Send what you received
-                                    button_text = inter.clicked_button.label
-                                    if button_text == 'next':
-                                        page = page + 1
-                                    elif button_text == 'previous':
-                                        page = page - 1
-                                    embed = discord.Embed(colour=utils.ENV_COLOUR)
-                                    embed.set_author(name=f'Leaderboard for {ctx.guild.name}',
-                                                     icon_url=str(ctx.guild.icon_url))
-                                    limit = page * 10
-                                    if len(result2) < limit:
-                                        limit = len(result2)
-                                    for i in range((page - 1) * 10, limit):
-                                        u = await utils.get_user(self.bot, int(result2[i][1]))
-                                        embed.add_field(name=f"{i + 1}. {u}",
-                                                        value=f"Level ➜ `{result2[i][0]}`\nxp ➜ `{result2[i][2]}`",
-                                                        inline=False)
-
-                                    if page == last_page:
-                                        await msg.edit(
-                                            embed=embed,
-                                            components=[row_of_buttons_last]
-                                        )
-                                    elif page == 1:
-                                        await msg.edit(
-                                            embed=embed,
-                                            components=[row_of_buttons_first]
-                                        )
-                                    else:
-                                        await msg.edit(
-                                            embed=embed,
-                                            components=[row_of_buttons_mid]
-                                        )
-                                except asyncio.TimeoutError:
-                                    try:
-                                        await msg.edit(components=[])
-                                    except:
-                                        pass
-
-                                    return
-
+                            
                         else:
                             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                                   description=f'{utils.CROSS_EMOJI} Levelling is disabled for this server')
@@ -494,10 +428,11 @@ class Levelling(commands.Cog):
             pool.close()
             await pool.wait_closed()
 
-    @commands.command(description='Assign roles for each level', usage='setlevelrole {level} {role}')
+    @commands.hybrid_command(description='Assign roles for each level', usage='setlevelrole {level} {role}')
     @utils.is_admin()
     @commands.bot_has_guild_permissions(manage_roles=True)
-    async def setlevelrole(self,ctx,level:str=None,role: Union[discord.Role, int, str] = None):
+    async def setlevelrole(self,ctx:commands.Context,level:str,role:discord.Role):
+        await ctx.defer()
         if not level:
             embed = discord.Embed(colour=utils.ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention the level to assign role")
             await ctx.send(embed=embed)
@@ -529,9 +464,10 @@ class Levelling(commands.Cog):
                               description=f'{utils.TICK_EMOJI} Role set successfully')
         await ctx.send(embed=embed)
 
-    @commands.command(description='Delete the role assigned for a level', usage='removelevelrole {level}')
+    @commands.hybrid_command(description='Delete the role assigned for a level', usage='removelevelrole {level}')
     @utils.is_admin()
-    async def removelevelrole(self, ctx, level: str = None):
+    async def removelevelrole(self, ctx:commands.Context,level:str):
+        await ctx.defer()
         if not level:
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the level to remove role")
@@ -563,8 +499,9 @@ class Levelling(commands.Cog):
                 embed = discord.Embed(colour=utils.ENV_COLOUR,
                               description=f'{utils.TICK_EMOJI} Role removed successfully')
                 await ctx.send(embed=embed)
-    @commands.command(description='Shows the list of roles assigned to each level', usage='levelroles')
-    async def levelroles(self,ctx):
+    @commands.hybrid_command(description='Shows the list of roles assigned to each level', usage='levelroles')
+    async def levelroles(self,ctx:commands.Context):
+        await ctx.defer()
         pool = await aiomysql.create_pool(host=utils.DB_HOST, user=utils.DB_USER,
                                           password=utils.DB_PASSWORD, db='servers', autocommit=True)
         async with pool.acquire() as conn:
@@ -601,7 +538,63 @@ class Levelling(commands.Cog):
                     await ctx.send(embed=embed)
 
 
+class LBButtons(discord.ui.View):
+    def __init__(self, *, timeout=60,bot,author,ctx,result,last_page):
+        super().__init__(timeout=timeout)
+        self.bot=bot
+        self.author=author
+        self.ctx=ctx
+        self.result=result
+        self.last_page=last_page
+        self.page=1
+    @discord.ui.button(style=discord.ButtonStyle.blurple,custom_id="previous",label='previous',disabled=True)
+    async def previous(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        self.page = self.page - 1
+        embed = discord.Embed(colour=utils.ENV_COLOUR)
+        embed.set_author(name=f'Leaderboard for {self.ctx.guild.name}',icon_url=str(self.ctx.guild.icon.url))
+        limit = self.page * 10
+        if len(self.result) < limit:
+            limit = len(self.result)
+        for i in range((self.page - 1) * 10, limit):
+            u = await utils.get_user(self.bot, int(self.result[i][1]))
+            embed.add_field(name=f"{i + 1}. {u}",value=f"Level ➜ `{self.result[i][0]}`\nxp ➜ `{self.result[i][2]}`",inline=False)
+        if self.page==1:
+            button.disabled=True
+            self.children[1].disabled=False
+        else:
+            button.disabled=False
+            if self.page!=self.last_page:
+                self.children[1].disabled=False
+        await interaction.edit_original_response(embed=embed,view=self)
+    @discord.ui.button(style=ButtonStyle.blurple,custom_id="next",label='next')
+    async def next(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
 
+        self.page = self.page + 1
+        embed = discord.Embed(colour=utils.ENV_COLOUR)
+        embed.set_author(name=f'Leaderboard for {self.ctx.guild.name}',icon_url=str(self.ctx.guild.icon.url))
+        limit = self.page * 10
+        if len(self.result) < limit:
+            limit = len(self.result)
+        for i in range((self.page - 1) * 10, limit):
+            u = await utils.get_user(self.bot, int(self.result[i][1]))
+            embed.add_field(name=f"{i + 1}. {u}",value=f"Level ➜ `{self.result[i][0]}`\nxp ➜ `{self.result[i][2]}`",inline=False)
+        if self.page==self.last_page:
+            button.disabled=True
+            self.children[0].disabled=False
+        else:
+            button.disabled=False
+            if self.page!=1:
+                self.children[0].disabled=False
+        await interaction.edit_original_response(embed=embed,view=self)
+    
+    async def interaction_check(self,interaction:discord.Interaction):
+        return interaction.user.id ==self.author.id
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+        await self.msg.edit(view=self)
 
 
 async def setup(bot):

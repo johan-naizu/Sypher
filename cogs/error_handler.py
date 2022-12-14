@@ -49,6 +49,16 @@ class Error(commands.Cog):
                                   description=f"{utils.CROSS_EMOJI} Channel not found")
             await ctx.send(embed=embed)
             return
+        if isinstance(error, commands.errors.BadArgument):
+            embed = discord.Embed(colour=ENV_COLOUR,
+                                  description=f"{utils.CROSS_EMOJI} Invalid argument format\nUsage : `{ctx.command.usage}`")
+            await ctx.send(embed=embed)
+            return
+        if isinstance(error, commands.errors.MissingRequiredArgument):
+            embed = discord.Embed(colour=ENV_COLOUR,
+                                  description=f"{utils.CROSS_EMOJI} Missing Required arguments\nUsage : `{ctx.command.usage}`")
+            await ctx.send(embed=embed)
+            return
         if isinstance(error, commands.CheckFailure):
             if ctx.failed_check=='is_bot_admin':
                 return

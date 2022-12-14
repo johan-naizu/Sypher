@@ -106,8 +106,8 @@ class Utilities(commands.Cog):
         if type=='guild':
             prefix=await utils.fetch_prefix(object.id)
             embed = discord.Embed(color=ENV_COLOUR)
-            embed.set_author(name=f'{object.name}', icon_url=object.icon_url_as(static_format='png'))
-            embed.set_thumbnail(url=object.icon_url_as(static_format='png'))
+            embed.set_author(name=f'{object.name}', icon_url=object.icon.with_format('png').url)
+            embed.set_thumbnail(url=object.icon.with_format('png').url)
             embed.add_field(name=f'{utils.SERVER_EMOJI} Server Name', value=object.name, inline=True)
             embed.add_field(name=f'{utils.ID_EMOJI} ID', value=object.id, inline=True)
             embed.add_field(name=f'{utils.MEMBERS_EMOJI} Members', value=f"{object.member_count}", inline=True)
@@ -194,8 +194,9 @@ class Utilities(commands.Cog):
 
 
 
-    @commands.command(description='Gives info about the bot', usage='stats',aliases=['bot'])
-    async def stats(self, ctx):
+    @commands.hybrid_command(description='Gives info about the bot', usage='stats',aliases=['bot'])
+    async def stats(self, ctx:commands.Context):
+        await ctx.defer()
         object=self.bot.user
         try:
             url = object.avatar.with_format('png').url
@@ -214,11 +215,11 @@ class Utilities(commands.Cog):
         embed.set_thumbnail(url=url)
         await ctx.send(embed=embed)
 
-    @commands.command(description='Add a role to a member', usage='addrole {member} {role}')
+    @commands.hybrid_command(description='Add a role to a member', usage='addrole {member} {role}')
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.has_guild_permissions(manage_roles=True)
-    async def addrole(self, ctx, member: Union[discord.Member, int, str] = None,
-                      role: Union[discord.Role, int, str] = None):
+    async def addrole(self, ctx:commands.Context, member:discord.Member,role:discord.Role):
+        await ctx.defer()
         member = await utils.extract_member(ctx=ctx, member=member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member")
@@ -250,11 +251,11 @@ class Utilities(commands.Cog):
                               description=f'{utils.TICK_EMOJI} Role added successfully')
         await ctx.send(embed=embed)
 
-    @commands.command(description='Remove a role from a member', usage='removerole {member} {role}')
+    @commands.hybrid_command(description='Remove a role from a member', usage='removerole {member} {role}')
     @commands.bot_has_guild_permissions(manage_roles=True)
     @commands.has_guild_permissions(manage_roles=True)
-    async def removerole(self, ctx, member: Union[discord.Member, int, str] = None,
-                         role: Union[discord.Role, int, str] = None):
+    async def removerole(self, ctx:commands.Context, member:discord.Member,role:discord.Role):
+        await ctx.defer()
         member = await utils.extract_member(ctx=ctx, member=member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member")
@@ -286,8 +287,9 @@ class Utilities(commands.Cog):
                               description=f'{utils.TICK_EMOJI} Role removed successfully')
         await ctx.send(embed=embed)
 
-    @commands.command(description='Gives the current bot latency',usage='ping')
-    async def ping(self,ctx):
+    @commands.hybrid_command(description='Gives the current bot latency',usage='ping')
+    async def ping(self,ctx:commands.Context):
+        await ctx.defer()
         embed = discord.Embed(title=f'{utils.PING_EMOJI} Ping!', color=ENV_COLOUR,)
         embed.set_thumbnail(url=self.bot.user.avatar.with_format('png').url)
         embed.add_field(name=f'{utils.SIGNAL_EMOJI} Latency', value=(f'`{round(self.bot.latency * 1000)}`ms'), inline=True)
@@ -412,9 +414,10 @@ class Utilities(commands.Cog):
                         f"DELETE FROM reminders WHERE user='{user}' and channel={i[1]} and message='{message}';")
                     await conn.commit()
 
-    @commands.command(description='Get the current covid-19 stats', usage='corona [country]',aliases=['covid'])
-    async def corona(self,ctx,*,arg=None):
-        data=await utils.corona_stats(arg)
+    @commands.hybrid_command(description='Get the current covid-19 stats', usage='corona [country]',aliases=['covid'])
+    async def corona(self,ctx:commands.Context,*,location:str=None):
+        await ctx.defer()
+        data=await utils.corona_stats(location)
         if not data:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please provide a valid country name")
@@ -435,14 +438,15 @@ class Utilities(commands.Cog):
                         inline=True)
         await ctx.send(embed=embed)
 
-    @commands.command(description='Evaluate the quality of your website', usage='measure {url}')
-    async def measure(self,ctx, *, text=None):
-        if not text:
+    @commands.hybrid_command(description='Evaluate the quality of your website', usage='measure {url}')
+    async def measure(self,ctx:commands.Context, *,url:str):
+        await ctx.defer()
+        if not url:
             await ctx.send(f"{utils.CROSS_EMOJI} **Enter url to audit**")
             return
-        if utils.regex(text):
-            url = utils.regex(text)[0]
-            check = await utils.ping_url(url)
+        if utils.regex(url):
+            urll = utils.regex(url)[0]
+            check = await utils.ping_url(urll)
             if not check:
                 await ctx.send(
                     f"{utils.CROSS_EMOJI} **Connection Failed:** Make sure the url is well defined and the server is responding to requests")
@@ -451,11 +455,8 @@ class Utilities(commands.Cog):
             await ctx.send(f"{utils.CROSS_EMOJI} **Enter url to audit**")
             return
 
-        m = await ctx.send(f"{utils.LOADING_EMOJI}")
-
-        record = await utils.light(url)
+        record = await utils.light(urll)
         if not record:
-            await m.delete()
             await ctx.send(f"{utils.CROSS_EMOJI} **An unexpected error occurred**")
             return
         fcp_time = record[0]
@@ -470,17 +471,16 @@ class Utilities(commands.Cog):
         seo = record[9]
         overall_score = record[10]
 
-        embed = discord.Embed(colour=ENV_COLOUR, title=f"Performance audit for {url}",
+        embed = discord.Embed(colour=ENV_COLOUR, title=f"Performance audit for {urll}",
                               description=f"**Overall**\n{utils.emo(overall_score)} Overall Score: {overall_score}\n\n**Scores**\n{utils.emo(performance)} Performance: {performance}\n{utils.emo(accessibility)} Accessibility: {accessibility}\n{utils.emo(bestpractices)} Best Practices: {bestpractices}\n{utils.emo(seo)} SEO: {seo}\n\n"
                                           f"**Metrics**\n{utils.fcp(fcp_time)} First Contentful Paint: {fcp_time} s\n{utils.si(speed_index)} Speed Index: {speed_index} s\n{utils.lcps(lcp)} Largest Contentful Paint: {lcp} s\n"
                                           f"{utils.ti(time_interactive)} Time to Interactive: {time_interactive} s\n{utils.tbt(blocking_time_duration)} Total Blocking Time: {blocking_time_duration} ms\n{utils.clss(cls)} Cumulative Layout Shift: {cls}")
 
-        await m.delete()
-
         await ctx.send(embed=embed)
 
-    @commands.command(description="Shorten url's with cutt.ly", usage='shorten {url} {slug}')
-    async def shorten(self,ctx, url=None, slug=None):
+    @commands.hybrid_command(description="Shorten url's with cutt.ly", usage='shorten {url} {slug}')
+    async def shorten(self,ctx:commands.Context, url:str, slug:str):
+        await ctx.defer()
         if not url:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please provide a url to shorten")
             await ctx.send(embed=embed)
@@ -514,10 +514,11 @@ class Utilities(commands.Cog):
         except:
             await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
 
-    @commands.command(description="Upload an image to imgur", usage='imgur {image as attachment}')
-    async def imgur(self,ctx):
-        if ctx.message.attachments:
-            file=ctx.message.attachments[0]
+    @commands.hybrid_command(description="Upload an image to imgur", usage='imgur {image as attachment}')
+    async def imgur(self,ctx:commands.Context,attachment: discord.Attachment):
+        await ctx.defer()
+        if attachment:
+            file=attachment
             try:
                 x=await file.read()
             except:
@@ -537,8 +538,9 @@ class Utilities(commands.Cog):
             await ctx.send(f"{utils.CROSS_EMOJI} **Please provide an image to upload to imgur**")
 
 
-    @commands.command(description='Invite Sypher to your server', usage='invite')
-    async def invite(self,ctx):
+    @commands.hybrid_command(description='Invite Sypher to your server', usage='invite')
+    async def invite(self,ctx:commands.Context):
+        await ctx.defer()
         embed = discord.Embed(colour=ENV_COLOUR,
                               description="[Invite Sypher](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands) | [Support Server](https://discord.gg/CWZMpFF) | [Website](https://sypherbot.in/)")
         await ctx.send(embed=embed)
@@ -551,9 +553,9 @@ class Utilities(commands.Cog):
         elif outage == 'operational':
             return utils.TICK_EMOJI
 
-    @commands.command(description="Current Discord Status", usage='status')
-    async def status(self,ctx):
-        m = await ctx.send(utils.LOADING_EMOJI)
+    @commands.hybrid_command(description="Current Discord Status", usage='status')
+    async def status(self,ctx:commands.Context):
+        await ctx.defer()
         list = ['API', "Media Proxy", "Push Notifications", "Search", "Voice", "Third-party"]
         u = "https://srhpyqt94yxb.statuspage.io/api/v2/summary.json"
         try:
@@ -577,23 +579,20 @@ class Utilities(commands.Cog):
                                 inc = await f.json()
                                 embed.add_field(name="Recent incidents",
                                                 value=f"[{inc['incidents'][0]['name']}]({inc['incidents'][0]['shortlink']}) ({inc['incidents'][0]['impact']})")
-                    await m.delete()
                     await ctx.send(embed=embed)
 
 
 
         except:
-            await m.delete()
             await ctx.send(f"{utils.CROSS_EMOJI} **Encountered an error**")
-    @commands.command(description='Get results from Wolfram Alpha', usage='wa {query}')
-    async def wa(self,ctx, *,arg=None):
+    @commands.hybrid_command(description='Get results from Wolfram Alpha', usage='wa {query}')
+    async def wa(self,ctx:commands.Context,*,arg:str):
+        await ctx.defer()
         if not arg:
             await ctx.send(f"{utils.CROSS_EMOJI} Please provide a query")
             return
-        m = await ctx.send(f"{utils.LOADING_EMOJI}")
         image=await utils.wolfram_image(arg)
         text=await utils.wolfram(arg)
-        await m.delete()
         if not image and not text:
             await ctx.send(f"{utils.CROSS_EMOJI} No results found")
             return
@@ -604,9 +603,9 @@ class Utilities(commands.Cog):
         else:
             await ctx.send(file=discord.File(image, filename='wolf.png'),content=f"**{text}**")
 
-    @commands.command(aliases=['h'],description="Sypher's help command",usage='help [command]')
-    async def help(self,ctx, *, arg=None):
-        if not arg:
+    @commands.hybrid_command(aliases=['h'],description="Sypher's help command",usage='help [command]')
+    async def help(self,ctx:commands.Context, *,command:str=None):
+        if not command:
             prefix=';'
             if ctx.guild:
                 prefix = await utils.fetch_prefix(ctx.guild.id)
@@ -629,72 +628,12 @@ class Utilities(commands.Cog):
                                 value="`{}` ➜ required parameters\n`[]` ➜ optional parameters\n" + f"`{prefix}` ➜ prefix",
                                 inline=False)
 
-            row_of_buttons = ActionRow([
-                Button(
-                    style=ButtonStyle.blurple,
-                    custom_id="Mod",
-                    emoji=utils.OWNER_EMOJI
-                ),
-                Button(
-                    style=ButtonStyle.blurple,
-                    custom_id="Fun",
-                    emoji=utils.ROLL_EMOJI
-                ),
-                Button(
-                    style=ButtonStyle.blurple,
-                    custom_id="Utilities",
-                    emoji=utils.UTILITIES_EMOJI
-                ),
-                Button(
-                    style=ButtonStyle.blurple,
-                    custom_id="Levelling",
-                    emoji=utils.POSITION_EMOJI
-                ),
-                Button(
-                    style=ButtonStyle.blurple,
-                    custom_id="Configuration",
-                    emoji=utils.CREATED_EMOJI
-                )]
+            view=HelpButtons(prefix=prefix,bot=self.bot,author=ctx.author)
+            view.msg=await ctx.send(embed=embed,view=view)
 
-            )
-            msg=await ctx.send(embed=embed,components=[row_of_buttons])
-
-            def check(inter):
-                if inter.message.id == msg.id:
-                    return True
-
-            while True:
-                try:
-                    inter = await ctx.wait_for_button_click(check, timeout=60.0)
-                    if not inter.author.id == ctx.author.id:
-                        prefix=await utils.fetch_prefix(ctx.guild.id)
-                        await inter.reply(ephemeral=True, content=f"Use `{prefix}help`")
-                        continue
-                    await inter.reply(type=7)
-                    cog_name= inter.clicked_button.custom_id
-                    cog=self.bot.get_cog(cog_name)
-                    list=cog.get_commands()
-                    embed = discord.Embed(colour=ENV_COLOUR,title=f"{inter.clicked_button.emoji} {cog_name} Help")
-                    for i in list:
-                        name=i.name
-                        if name=='_8ball':
-                            name='8ball'
-                        embed.add_field(name=f"`{prefix}{name}`",value=i.description)
-                    await msg.edit(
-                        embed=embed,
-                        components=[row_of_buttons]
-                    )
-
-                except asyncio.TimeoutError:
-                    try:
-                        row_of_buttons.disable_buttons()
-                        await msg.edit(components=[row_of_buttons])
-                    except:
-                        pass
-                    return
 
         else:
-            cmnd = self.bot.get_command(arg.lower())
+            cmnd = self.bot.get_command(command.lower())
             if not cmnd:
                 embed = discord.Embed(colour=ENV_COLOUR,
                                       description=f"{utils.CROSS_EMOJI} Command not found")
@@ -720,6 +659,87 @@ class Utilities(commands.Cog):
 
 
 
+class HelpButtons(discord.ui.View):
+    def __init__(self, *, timeout=60,prefix=';',bot,author):
+        super().__init__(timeout=timeout)
+        self.prefix=prefix
+        self.bot=bot
+        self.author=author
+    @discord.ui.button(style=discord.ButtonStyle.blurple,custom_id="Mod",emoji=utils.OWNER_EMOJI)
+    async def Modbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        cog_name= button.custom_id
+        cog=self.bot.get_cog(cog_name)
+        list=cog.get_commands()
+        embed = discord.Embed(colour=ENV_COLOUR,title=f"{button.emoji} {cog_name} Help")
+        for i in list:
+            name=i.name
+            if name=='_8ball':
+                name='8ball'
+            embed.add_field(name=f"`{self.prefix}{name}`",value=i.description)
+        await interaction.edit_original_response(embed=embed)
+    @discord.ui.button(style=ButtonStyle.blurple,custom_id="Fun",emoji=utils.ROLL_EMOJI)
+    async def Funbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        cog_name= button.custom_id
+        cog=self.bot.get_cog(cog_name)
+        list=cog.get_commands()
+        embed = discord.Embed(colour=ENV_COLOUR,title=f"{button.emoji} {cog_name} Help")
+        for i in list:
+            name=i.name
+            if name=='_8ball':
+                name='8ball'
+            embed.add_field(name=f"`{self.prefix}{name}`",value=i.description)
+        await interaction.edit_original_response(embed=embed)
+    @discord.ui.button(style=ButtonStyle.blurple,custom_id="Utilities",emoji=utils.UTILITIES_EMOJI)
+    async def Utilitiesbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        cog_name= button.custom_id
+        cog=self.bot.get_cog(cog_name)
+        list=cog.get_commands()
+        embed = discord.Embed(colour=ENV_COLOUR,title=f"{button.emoji} {cog_name} Help")
+        for i in list:
+            name=i.name
+            if name=='_8ball':
+                name='8ball'
+            embed.add_field(name=f"`{self.prefix}{name}`",value=i.description)
+        await interaction.edit_original_response(embed=embed)
 
+    @discord.ui.button(style=ButtonStyle.blurple,custom_id="Levelling",emoji=utils.POSITION_EMOJI)
+    async def Levellingbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        cog_name= button.custom_id
+        cog=self.bot.get_cog(cog_name)
+        list=cog.get_commands()
+        embed = discord.Embed(colour=ENV_COLOUR,title=f"{button.emoji} {cog_name} Help")
+        for i in list:
+            name=i.name
+            if name=='_8ball':
+                name='8ball'
+            embed.add_field(name=f"`{self.prefix}{name}`",value=i.description)
+        await interaction.edit_original_response(embed=embed)
+    @discord.ui.button(style=ButtonStyle.blurple,custom_id="Configuration",emoji=utils.CREATED_EMOJI)
+    async def Configurationbutton(self,interaction:discord.Interaction,button:discord.ui.Button):
+        await interaction.response.defer()
+        cog_name= button.custom_id
+        cog=self.bot.get_cog(cog_name)
+        list=cog.get_commands()
+        embed = discord.Embed(colour=ENV_COLOUR,title=f"{button.emoji} {cog_name} Help")
+        for i in list:
+            name=i.name
+            if name=='_8ball':
+                name='8ball'
+            embed.add_field(name=f"`{self.prefix}{name}`",value=i.description)
+        await interaction.edit_original_response(embed=embed)
+    async def interaction_check(self,interaction:discord.Interaction):
+        return interaction.user.id ==self.author.id
+    async def on_timeout(self):
+        for child in self.children:
+            child.disabled = True
+        await self.msg.edit(view=self)
+    
+
+
+    
 async def setup(bot):
     await bot.add_cog(Utilities(bot))

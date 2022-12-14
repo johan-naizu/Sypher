@@ -7,15 +7,16 @@ import discord
 import utils
 from typing import Union
 ENV_COLOUR=utils.ENV_COLOUR
-
+from discord import app_commands
 
 class Configuration(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(description="Change the bots prefix", usage='prefix {prefix}')
+    @commands.hybrid_command(description="Change the bots prefix", usage='prefix {prefix}')
     @utils.is_admin()
-    async def prefix(self, ctx, *, prefix=None):
+    async def prefix(self, ctx:commands.Context, *, prefix:str):
+        await ctx.defer()
         if not ctx.guild:
             return
         if not prefix:
@@ -36,9 +37,10 @@ class Configuration(commands.Cog):
                 await ctx.send(embed=embed)
 
 
-    @commands.command(description='Enable or disable server greetings',usage='greeting {enable/disable} [channel]')
+    @commands.hybrid_command(description='Enable or disable server greetings',usage='greeting {enable/disable} [channel]')
     @utils.is_admin()
-    async def greeting(self, ctx, arg=None, channel: discord.TextChannel = None):
+    async def greeting(self, ctx:commands.Context, arg:str, channel: discord.TextChannel = None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         if not ctx.guild:
@@ -133,7 +135,12 @@ class Configuration(commands.Cog):
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
-
+    @greeting.autocomplete('arg')
+    async def greeting_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        args = ["enable","disable"]
+        return [
+            app_commands.Choice(name=arg, value=arg)
+            for arg in args if current.lower() in arg.lower()]
     @commands.Cog.listener()
     async def on_member_join(self, member):
         pool = await aiomysql.create_pool(host=utils.DB_HOST, user=utils.DB_USER,
@@ -167,9 +174,10 @@ class Configuration(commands.Cog):
                         except:
                             pass
 
-    @commands.command(description='Enable or disable starboard.React with ⭐️ to add a message to starboard',usage='starboard {enable/disable} [channel]')
+    @commands.hybrid_command(description='Enable or disable starboard.React with ⭐️ to add a message to starboard',usage='starboard {enable/disable} [channel]')
     @utils.is_admin()
-    async def starboard(self, ctx, arg=None, channel: discord.TextChannel = None):
+    async def starboard(self, ctx:commands.Context, arg:str, channel: discord.TextChannel = None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         if not ctx.guild:
@@ -262,7 +270,12 @@ class Configuration(commands.Cog):
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
-
+    @starboard.autocomplete('arg')
+    async def starboard_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        args = ["enable","disable"]
+        return [
+            app_commands.Choice(name=arg, value=arg)
+            for arg in args if current.lower() in arg.lower()]
     @commands.Cog.listener()
     async def on_raw_reaction_add(self,payload):
         try:
@@ -307,9 +320,10 @@ class Configuration(commands.Cog):
                                              icon_url=str(message.author.avatar.with_format('png').url))
                             await channel2.send(embed=embed)
 
-    @commands.command(description='Enable or disable logging',usage='logging {enable/disable} [channel]')
+    @commands.hybrid_command(description='Enable or disable logging',usage='logging {enable/disable} [channel]')
     @utils.is_admin()
-    async def logging(self, ctx, arg=None, channel: discord.TextChannel = None):
+    async def logging(self, ctx:commands.Context, arg:str, channel: discord.TextChannel = None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         if not ctx.guild:
@@ -400,11 +414,17 @@ class Configuration(commands.Cog):
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Please mention a valid action (`enable`,`disable`)')
             await ctx.send(embed=embed)
-
-    @commands.command(description='Set up an auto role given to joining members', usage='autorole {add/remove} {role}')
+    @logging.autocomplete('arg')
+    async def logging_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        args = ["enable","disable"]
+        return [
+            app_commands.Choice(name=arg, value=arg)
+            for arg in args if current.lower() in arg.lower()]
+    @commands.hybrid_command(description='Set up an auto role given to joining members', usage='autorole {add/remove} {role}')
     @utils.is_admin()
     @commands.bot_has_guild_permissions(manage_roles=True)
-    async def autorole(self, ctx, action: str = None, role: Union[discord.Role, int, str] = None):
+    async def autorole(self, ctx:commands.Context, action: str, role:discord.Role):
+        await ctx.defer()
         if not action:
             embed = discord.Embed(colour=utils.ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the action (add/remove)")
@@ -458,9 +478,15 @@ class Configuration(commands.Cog):
                                       description=f'{utils.TICK_EMOJI} Role removed successfully')
                 await ctx.send(embed=embed)
                 return
-
-    @commands.command(description='List of roles that will be added to joining users', usage='autoroles')
-    async def autoroles(self, ctx):
+    @autorole.autocomplete('action')
+    async def autorole_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        actions = ["add","remove"]
+        return [
+            app_commands.Choice(name=action, value=action)
+            for action in actions if current.lower() in action.lower()]
+    @commands.hybrid_command(description='List of roles that will be added to joining users', usage='autoroles')
+    async def autoroles(self, ctx:commands.Context):
+        await ctx.defer()
         pool = await aiomysql.create_pool(host=utils.DB_HOST, user=utils.DB_USER,
                                           password=utils.DB_PASSWORD, db='utils', autocommit=True)
         async with pool.acquire() as conn:
@@ -482,8 +508,9 @@ class Configuration(commands.Cog):
                                           description=f'{utils.CROSS_EMOJI} No autoroles have been setup')
                     await ctx.send(embed=embed)
 
-    @commands.command(aliases=['perms'],description='Add or Remove bot permissions of a user', usage='permission {add/remove} {admin/mod} {member}')
-    async def permission(self, ctx, action=None, perm=None, member: Union[discord.Member, int, str] = None):
+    @commands.hybrid_command(aliases=['perms'],description='Add or Remove bot permissions of a user', usage='permission {add/remove} {admin/mod} {member}')
+    async def permission(self, ctx:commands.Context, action:str, permission:str, member:discord.Member):
+        await ctx.defer()
         if not ctx.author.id == ctx.guild.owner_id:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} This command can be used only by the server owner")
@@ -500,13 +527,13 @@ class Configuration(commands.Cog):
                                   description=f"{utils.CROSS_EMOJI} Please mention a valid action (add/remove)")
             await ctx.send(embed=embed)
             return
-        if not perm:
+        if not permission:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the permission (admin/mod)")
             await ctx.send(embed=embed)
             return
-        perm = perm.lower()
-        if not perm in ['admin', 'mod', 'moderator']:
+        permission = permission.lower()
+        if not permission in ['admin', 'mod', 'moderator']:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention a valid permission (admin/mod)")
             await ctx.send(embed=embed)
@@ -519,7 +546,7 @@ class Configuration(commands.Cog):
             await ctx.send(embed=embed)
             return
         perm_dict = {'admin': 'a', 'mod': 'm', 'moderator': 'm'}
-        perm_code = perm_dict[perm]
+        perm_code = perm_dict[permission]
         pool = await aiomysql.create_pool(host=utils.DB_HOST,
                                           user=utils.DB_USER,
                                          password=utils.DB_PASSWORD, db='servers', autocommit=True)
@@ -538,19 +565,19 @@ class Configuration(commands.Cog):
                 async with conn.cursor() as cursor:
                     await cursor.execute(f'''SELECT permissions FROM g{ctx.guild.id} WHERE user_id='{member.id}';''')
                     result = await cursor.fetchall()
-                    permission = result[0][0]
-                    if not permission:
-                        permission = perm_code
-                    elif perm_code in permission:
+                    permissions = result[0][0]
+                    if not permissions:
+                        permissions = perm_code
+                    elif perm_code in permissions:
                         embed = discord.Embed(colour=ENV_COLOUR,
                                               description=f"{utils.CROSS_EMOJI} This user already has this permission")
                         await ctx.send(embed=embed)
                         return
 
                     else:
-                        permission = permission + f'{perm_code}'
+                        permissions = permissions + f'{perm_code}'
                     await cursor.execute(
-                        f'''UPDATE g{ctx.guild.id} SET permissions='{permission}' where user_id='{member.id}';''')
+                        f'''UPDATE g{ctx.guild.id} SET permissions='{permissions}' where user_id='{member.id}';''')
                     embed = discord.Embed(colour=ENV_COLOUR,
                                           description=f"{utils.TICK_EMOJI} Permission has been granted to {member.mention}")
                     await ctx.send(embed=embed)
@@ -559,29 +586,40 @@ class Configuration(commands.Cog):
                 async with conn.cursor() as cursor:
                     await cursor.execute(f'''SELECT permissions FROM g{ctx.guild.id} WHERE user_id='{member.id}';''')
                     result = await cursor.fetchall()
-                    permission = result[0][0]
-                    if not permission:
+                    permissions = result[0][0]
+                    if not permissions:
                         embed = discord.Embed(colour=ENV_COLOUR,
                                               description=f"{utils.CROSS_EMOJI} This user does not have this permission")
                         await ctx.send(embed=embed)
                         return
-                    elif not perm_code in permission:
+                    elif not perm_code in permissions:
                         embed = discord.Embed(colour=ENV_COLOUR,
                                               description=f"{utils.CROSS_EMOJI} This user does not have this permission")
                         await ctx.send(embed=embed)
                         return
 
                     else:
-                        permission = permission.replace(f'{perm_code}', '')
+                        permissions = permissions.replace(f'{perm_code}', '')
                         await cursor.execute(
-                            f'''UPDATE g{ctx.guild.id} SET permissions='{permission}' where user_id='{member.id}';''')
+                            f'''UPDATE g{ctx.guild.id} SET permissions='{permissions}' where user_id='{member.id}';''')
                         embed = discord.Embed(colour=ENV_COLOUR,
                                               description=f"{utils.TICK_EMOJI} Permission has been removed from {member.mention}")
                         await ctx.send(embed=embed)
 
         pool.close()
         await pool.wait_closed()
-
+    @permission.autocomplete('action')
+    async def permission_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        actions = ["add","remove"]
+        return [
+            app_commands.Choice(name=action, value=action)
+            for action in actions if current.lower() in action.lower()]
+    @permission.autocomplete('permission')
+    async def permission_autocomplete(self,interaction: discord.Interaction,current: str,) -> list[app_commands.Choice[str]]:
+        actions = ["admin","moderator"]
+        return [
+            app_commands.Choice(name=action, value=action)
+            for action in actions if current.lower() in action.lower()]
     @commands.Cog.listener()
     async def on_message_delete(self,message):
         pool = await aiomysql.create_pool(host=utils.DB_HOST, user=utils.DB_USER,

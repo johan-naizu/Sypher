@@ -15,10 +15,11 @@ class Mod(commands.Cog):
         self.bot = bot
         self.mute_check.start()
         self.warn_check.start()
-    @commands.command(description='Kick members from a guild',usage='kick {member} [reason]')
+    @commands.hybrid_command(description='Kick members from a guild',usage='kick {member} [reason]')
     @commands.bot_has_guild_permissions(kick_members=True)
     @utils.can_kick()
-    async def kick(self, ctx,member:Union[discord.Member,int,str] = None,*,reason=None):
+    async def kick(self, ctx:commands.Context,member:discord.Member,*,reason:str=None):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member to kick")
@@ -65,10 +66,11 @@ class Mod(commands.Cog):
                                       description=f"{utils.CROSS_EMOJI} failed to kick {member.mention}")
                 await ctx.send(embed=embed)
 
-    @commands.command(description='Ban a user from a guild', usage='ban {user} [reason]')
+    @commands.hybrid_command(description='Ban a user from a guild', usage='ban {user} [reason]')
     @commands.bot_has_guild_permissions(ban_members=True)
     @utils.can_ban()
-    async def ban(self, ctx, member: Union[discord.Member, discord.User,int, str] = None, *, reason=None):
+    async def ban(self, ctx:commands.Context, member:discord.User, *, reason:str=None):
+        await ctx.defer()
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the user to ban")
@@ -135,10 +137,11 @@ class Mod(commands.Cog):
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} failed to ban {member.mention}")
             await ctx.send(embed=embed)
-    @commands.command(description='Unban a user from a guild', usage='unban {user} [reason]')
+    @commands.hybrid_command(description='Unban a user from a guild', usage='unban {user} [reason]')
     @commands.bot_has_guild_permissions(ban_members=True)
     @utils.can_ban()
-    async def unban(self,ctx,user:Union[discord.User,int,str]=None,*,reason=None):
+    async def unban(self,ctx:commands.Context,user:discord.User,*,reason:str=None):
+        await ctx.defer()
         if not user:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the user to unban")
@@ -449,27 +452,28 @@ class Mod(commands.Cog):
         await pool.wait_closed()
 
 
-    @commands.command(aliases=['del', 'delete'],description='Delete messages', usage='purge {limit}')
+    @commands.hybrid_command(aliases=['del', 'delete'],description='Delete messages', usage='purge {limit}')
     @commands.has_permissions(manage_messages=True)
     @commands.bot_has_permissions(manage_messages=True)
     @commands.max_concurrency(1, per=commands.BucketType.guild, wait=False)
-    async def purge(self,ctx,arg=None):
+    async def purge(self,ctx:commands.Context,count:int):
+        await ctx.defer()
         limit=None
-        if not arg:
+        if not count:
             embed = discord.Embed(color=ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Please mention the number of messages to delete')
             await ctx.send(embed=embed)
             return
-        if type(arg)==str:
-            if not arg.isdigit():
+        if type(count)==str:
+            if not count.isdigit():
                 embed = discord.Embed(color=ENV_COLOUR,
                                       description=f'{utils.CROSS_EMOJI} limit must be a number')
                 await ctx.send(embed=embed)
                 return
             else:
-                limit=int(arg)
-        elif type(arg)==int:
-            limit=arg
+                limit=int(count)
+        elif type(count)==int:
+            limit=count
         now=datetime.datetime.now()
         after=now-datetime.timedelta(days=14)
         try:
@@ -492,10 +496,11 @@ class Mod(commands.Cog):
 
     
 
-    @commands.command(description='Lock a Text Channel', usage='lock [channel]')
+    @commands.hybrid_command(description='Lock a Text Channel', usage='lock [channel]')
     @commands.bot_has_guild_permissions(manage_roles=True)
     @utils.can_lock()
-    async def lock(self,ctx,channel:Union[discord.TextChannel,int,str]=None):
+    async def lock(self,ctx:commands.Context,channel:discord.TextChannel=None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         elif type(channel)==int:
@@ -546,10 +551,11 @@ class Mod(commands.Cog):
         await channel.set_permissions(ctx.guild.default_role,send_messages=False)
         await utils.log(self.bot,ctx.author, f"has locked {channel.mention}")
 
-    @commands.command(description='Unlock a Text Channel', usage='unlock [channel]')
+    @commands.hybrid_command(description='Unlock a Text Channel', usage='unlock [channel]')
     @commands.bot_has_guild_permissions(manage_roles=True)
     @utils.can_lock()
-    async def unlock(self, ctx, channel: Union[discord.TextChannel, int, str] = None):
+    async def unlock(self, ctx:commands.Context,channel:discord.TextChannel=None):
+        await ctx.defer()
         if not channel:
             channel = ctx.channel
         elif type(channel)==int:
@@ -646,9 +652,10 @@ class Mod(commands.Cog):
         await x.send(embed=embed)
         await utils.log(self.bot, ctx.author, f"has nuked #{channel.name}")
 
-    @commands.command(description='Warn a member in a guild', usage='warn {member} [reason]')
+    @commands.hybrid_command(description='Warn a member in a guild', usage='warn {member} [reason]')
     @utils.can_mute()
-    async def warn(self, ctx, member: Union[discord.Member, int, str] = None,*,reason=None):
+    async def warn(self, ctx:commands.Context, member:discord.Member,*,reason:str=None):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member to warn")
@@ -698,21 +705,22 @@ class Mod(commands.Cog):
                     result2 = await cursor.fetchall()
                     x = result2[0][0]
                     expiry= x + datetime.timedelta(hours=warns)  #
-                    await cursor.execute(f'''INSERT INTO warn values('{member.id}','{ctx.guild.id}',{warns},{expiry});''')
+                    await cursor.execute(f'''INSERT INTO warn values('{member.id}','{ctx.guild.id}',{warns},'{expiry}');''')
                     await conn.commit()
                 else:
                     warns=result[0][0]+1
                     expiry=result[0][1] + datetime.timedelta(hours=warns)
-                    await cursor.execute(f'''UPDATE warn SET warns={warns} ,expiry={expiry} where user='{member.id}' and guild='{ctx.guild.id}';''')
+                    await cursor.execute(f'''UPDATE warn SET warns={warns} ,expiry='{expiry}' where user='{member.id}' and guild='{ctx.guild.id}';''')
                     await conn.commit()
 
         pool.close()
         await pool.wait_closed()
         await utils.log(self.bot,member, f"was warned by {ctx.author.mention}")
 
-    @commands.command(aliases=['warnings'],description='Get the number of warnings of a member', usage='warns {member}')
+    @commands.hybrid_command(aliases=['warnings'],description='Get the number of warnings of a member', usage='warns {member}')
     @utils.can_mute()
-    async def warns(self, ctx, member: Union[discord.Member, int, str] = None):
+    async def warns(self, ctx:commands.Context, member:discord.Member):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member")
@@ -725,7 +733,7 @@ class Mod(commands.Cog):
             async with conn.cursor() as cursor:
                 await cursor.execute(f'''SELECT warns,expiry,NOW() from warn where user='{member.id}' and guild='{ctx.guild.id}';''')
                 result = await cursor.fetchall()
-                if not result:
+                if not result or not result[0][1]:
                     embed = discord.Embed(colour=ENV_COLOUR,
                                           description=f"{utils.CROSS_EMOJI} This user has no warnings")
                     await ctx.send(embed=embed)
@@ -743,9 +751,10 @@ class Mod(commands.Cog):
         pool.close()
         await pool.wait_closed()
 
-    @commands.command(description='Removes 1 warning of a member', usage='unwarn {member} [reason]')
+    @commands.hybrid_command(description='Removes 1 warning of a member', usage='unwarn {member} [reason]')
     @utils.can_mute()
-    async def unwarn(self, ctx, member: Union[discord.Member, int, str] = None, *, reason=None):
+    async def unwarn(self,ctx:commands.Context, member:discord.Member, *, reason:str=None):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR,
@@ -788,16 +797,17 @@ class Mod(commands.Cog):
                         warns = result[0][0] - 1
                         expiry = result[0][1] - datetime.timedelta(hours=1)
                         await cursor.execute(
-                            f'''UPDATE warn SET warns={warns} ,expiry={expiry} where user='{member.id}' and guild='{ctx.guild.id}';''')
+                            f'''UPDATE warn SET warns={warns} ,expiry='{expiry}' where user='{member.id}' and guild='{ctx.guild.id}';''')
                         await conn.commit()
 
         pool.close()
         await pool.wait_closed()
         await utils.log(self.bot, member, f"was unwarned by {ctx.author.mention}")
 
-    @commands.command(description='Removes all warning of a member', usage='clearwarns {member} [reason]')
+    @commands.hybrid_command(description='Removes all warning of a member', usage='clearwarns {member} [reason]')
     @utils.can_mute()
-    async def clearwarns(self, ctx, member: Union[discord.Member, int, str] = None, *, reason=None):
+    async def clearwarns(self, ctx:commands.Context, member:discord.Member, *, reason:str=None):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR,
