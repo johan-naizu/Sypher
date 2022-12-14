@@ -20,10 +20,12 @@ class Utilities(commands.Cog):
         self.bot = bot
         self.reminders_check.start()
 
-    @commands.command(description='Gives information about a user,role or the server', usage='info [server | user | role]')
-    async def info(self, ctx,input:Union[discord.Member,discord.User,discord.Role,int,str] = None):
-        if not input:
-            input=ctx.author
+    @commands.hybrid_command(description='Gives information about a user,role or the server', usage='info [server | user | role]')
+    async def info(self, ctx:commands.Context,arg:discord.Object=None):
+        await ctx.defer()
+        if not arg:
+            arg=ctx.author
+        input=arg.id
         result=await utils.extract_info(ctx,self.bot,input)
         if not result:
             embed = discord.Embed(colour=ENV_COLOUR,
@@ -34,7 +36,22 @@ class Utilities(commands.Cog):
         object=result[1]
         if type=='user' or type=='member':
             if object.id==self.bot.user.id:
-                await self.stats(ctx)
+                try:
+                    url = object.avatar.with_format('png').url
+                except:
+                    url = "https://cdn.discordapp.com/embed/avatars/0.png"
+                embed = discord.Embed(color=ENV_COLOUR)
+                embed.set_author(name=f"{object}", icon_url=url)
+                embed.add_field(name=f"{utils.DEPLOY_EMOJI} Last Deployed", value=f"<t:{int(utils.start_time.timestamp())}:R>", inline=True)
+                embed.add_field(name=f"{utils.SERVER_EMOJI} Servers", value=f"Helping `{len(self.bot.guilds)}` servers", inline=True)
+                embed.add_field(name=f"{utils.MEMBERS_EMOJI} Members", value=f'Serving `{len(set(self.bot.get_all_members()))}` members',inline=True)
+                embed.add_field(name=f"{utils.SUPPORT_EMOJI} Support server",value=f'[click here](https://discord.gg/CWZMpFF) to join the support server', inline=True)
+                embed.add_field(name=f"{utils.DISCORD_EMOJI} Add to server",value=f'[click here](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands) to add the bot',inline=True)
+                embed.add_field(name=f"{utils.WEBSITE_EMOJI} Website",value=f'[click here](https://sypherbot.in/) to visit website ',inline=True)
+                owner=await utils.get_user(self.bot,721208659136217090)
+                embed.add_field(name=f"{utils.CREATED_EMOJI} Developed by", value=f'[{owner}](https://johan.naizu.in)', inline=True)
+                embed.set_thumbnail(url=url)
+                await ctx.send(embed=embed)
                 return
         if type=='user':
 
@@ -111,7 +128,6 @@ class Utilities(commands.Cog):
             embed.add_field(name=f'{utils.SERVER_EMOJI} Server Name', value=object.name, inline=True)
             embed.add_field(name=f'{utils.ID_EMOJI} ID', value=object.id, inline=True)
             embed.add_field(name=f'{utils.MEMBERS_EMOJI} Members', value=f"{object.member_count}", inline=True)
-            embed.add_field(name=f'{utils.REGION_EMOJI} Region', value=object.region, inline=True)
             embed.add_field(name=f'{utils.VERIFIED_EMOJI} Verification Level', value=object.verification_level,
                             inline=True)
             embed.add_field(name=f'{utils.CREATED_EMOJI} Created',
@@ -187,10 +203,25 @@ class Utilities(commands.Cog):
             embed.add_field(name=f'{utils.PROPERTIES_EMOJI} Properties', value=f"● {a}\n● {b}\n● {c}", inline=False)
             await ctx.send(embed=embed)
 
-    @commands.command(description='Gives information about the server',
-                      usage='serverinfo',aliases=['server'])
-    async def serverinfo(self, ctx):
-        await self.info(ctx,'server')
+    @commands.hybrid_command(description='Gives information about the server',usage='serverinfo',aliases=['server'])
+    async def serverinfo(self, ctx:commands.Context):
+        await ctx.defer()
+        object=ctx.guild
+        prefix=await utils.fetch_prefix(object.id)
+        embed = discord.Embed(color=ENV_COLOUR)
+        embed.set_author(name=f'{object.name}', icon_url=object.icon.with_format('png').url)
+        embed.set_thumbnail(url=object.icon.with_format('png').url)
+        embed.add_field(name=f'{utils.SERVER_EMOJI} Server Name', value=object.name, inline=True)
+        embed.add_field(name=f'{utils.ID_EMOJI} ID', value=object.id, inline=True)
+        embed.add_field(name=f'{utils.MEMBERS_EMOJI} Members', value=f"{object.member_count}", inline=True)
+        embed.add_field(name=f'{utils.VERIFIED_EMOJI} Verification Level', value=object.verification_level,
+                        inline=True)
+        embed.add_field(name=f'{utils.CREATED_EMOJI} Created',
+                        value=f"<t:{int(object.created_at.timestamp())}:R>", inline=True)
+        embed.add_field(name=f'{utils.OWNER_EMOJI} Server Owner', value=f"<@{object.owner_id}> | {object.owner_id}",
+                            inline=True)
+        embed.add_field(name=f"{utils.PREFIX_EMOJI} Server Prefix", value=f'`{prefix}`', inline=True)
+        await ctx.send(embed=embed)
 
 
 
