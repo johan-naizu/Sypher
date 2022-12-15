@@ -125,9 +125,10 @@ class Fun(commands.Cog):
         embed.set_footer(text=f"👍🏻 {meme[3]} | 👎🏻 {meme[2]} | 💬 {meme[5]}")
         await ctx.send(embed=embed)
 
-    @commands.command(description='Gives random riddles for fun', usage='riddle',aliases=['riddles'])
+    @commands.hybrid_command(description='Gives random riddles for fun', usage='riddle',aliases=['riddles'])
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    async def riddle(self,ctx):
+    async def riddle(self,ctx:commands.Context):
+        await ctx.defer()
         prefix=await utils.fetch_prefix(ctx.guild.id)
         fetch=await utils.get_riddle()
         question=fetch[0]
@@ -169,9 +170,10 @@ class Fun(commands.Cog):
                     await ctx.send(f"{utils.CROSS_EMOJI} **The answer was:** `{riddleAnswer}`")
                     return
 
-    @commands.command(description='Play hangman with Sypher', usage='hangman')
+    @commands.hybrid_command(description='Play hangman with Sypher', usage='hangman')
     @commands.max_concurrency(1, per=commands.BucketType.user, wait=False)
-    async def hangman(self,ctx):
+    async def hangman(self,ctx:commands.Context):
+        await ctx.defer()
         prefix=await utils.fetch_prefix(ctx.guild.id)
         word=await utils.get_hangman_word()
         blanks = []

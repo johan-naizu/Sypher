@@ -373,10 +373,11 @@ class Mod(commands.Cog):
 
 
 
-    @commands.command(description='Unmute a member in a guild', usage='unmute {member} [reason]')
+    @commands.hybrid_command(description='Unmute a member in a guild', usage='unmute {member} [reason]')
     @commands.bot_has_guild_permissions(manage_channels=True, manage_roles=True)
     @utils.can_mute()
-    async def unmute(self, ctx, member: Union[discord.Member, int, str] = None,*,reason=None):
+    async def unmute(self, ctx:commands.Context, member:discord.Member,*,reason:str=None):
+        await ctx.defer()
         member=await utils.extract_member(ctx,member)
         if not member:
             embed = discord.Embed(colour=ENV_COLOUR, description=f"{utils.CROSS_EMOJI} Please mention a valid member to unmute")
@@ -899,6 +900,14 @@ class Mod(commands.Cog):
                         reason=' '.join(args[2:])
                     else:
                         reason=None
+                elif args[0]==0:
+                    duration=0
+                    unit='sec'
+                    dd=0
+                    if len(args)>1:
+                        reason=' '.join(args[1:])
+                    else:
+                        reason=None
                 else:
                     asset=args[0]
                     duration=''
@@ -908,7 +917,7 @@ class Mod(commands.Cog):
                             duration=duration+asset[i]
                         else:
                             unit=asset[i:]
-                            unit=unit.stip()
+                            unit=unit.strip()
                             break
                     if not duration:
                         reason=' '.join(args)
@@ -940,7 +949,7 @@ class Mod(commands.Cog):
                         duration = duration + asset[i]
                     else:
                         unit = asset[i:]
-                        unit = unit.stip()
+                        unit = unit.strip()
                         break
                 if not duration:
                     reason = ' '.join(args)
@@ -954,6 +963,15 @@ class Mod(commands.Cog):
         else:
             reason=None
             duration=None
+
+        if duration==0:
+            await ctx.channel.edit(slowmode_delay=duration)
+            embed = discord.Embed(colour=ENV_COLOUR,
+                              description=f"Slowmode has been disabled for <#{ctx.channel.id}>")
+            await ctx.send(embed=embed)
+            await utils.log(self.bot, ctx.author, f"disabled slowmode for {ctx.channel.mention}")
+            return
+
         if not duration:
             embed = discord.Embed(colour=ENV_COLOUR,
                                   description=f"{utils.CROSS_EMOJI} Please mention the duration for slowmode")

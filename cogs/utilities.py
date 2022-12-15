@@ -399,8 +399,9 @@ class Utilities(commands.Cog):
         pool.close()
         await pool.wait_closed()
 
-    @commands.command(description='Get a list of active reminders', usage='reminders')
-    async def reminders(self, ctx):
+    @commands.hybrid_command(description='Get a list of active reminders', usage='reminders')
+    async def reminders(self, ctx:commands.Context):
+        await ctx.defer()
         pool = await aiomysql.create_pool(host=utils.DB_HOST,
                                           user=utils.DB_USER,
                                           password=utils.DB_PASSWORD, db='utils', autocommit=True)
