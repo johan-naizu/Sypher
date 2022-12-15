@@ -13,7 +13,7 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.hybrid_command(description='Replies to random yes/no questions', usage='8ball {question}',name="8ball")
-    async def _8ball(self,ctx:commands.Context, *, question:str=None):
+    async def _8ball(self,ctx:commands.Context, *, question:str):
         await ctx.defer()
         if not question:
             embed = discord.Embed(colour=ENV_COLOUR, description=f'{utils.CROSS_EMOJI} Please enter your question')

@@ -12,7 +12,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game(";help | sypherbot.in"))
+        await self.bot.change_presence(status=discord.Status.online, activity=discord.Game("/help | sypherbot.in"))
         print("ready")
 
 
@@ -40,7 +40,7 @@ class Events(commands.Cog):
         pool.close()
         await pool.wait_closed()
         embed = discord.Embed(color=ENV_COLOUR, title='Thanks for adding me to your server:exclamation::blush: ',
-                              description="For help use command `;help`\n"
+                              description="For help use command </help:1052652339133157397>\n"
                                           "To join our server and to contact our support team [**click here**](https://discord.gg/PBv6gzZ)\n"
                                           "To add Sypher to a server [**click here**](https://discord.com/api/oauth2/authorize?client_id=753605471650316379&permissions=1512901573878&scope=bot%20applications.commands)\n"
                                           "To visit our website [**click here**](https://www.sypherbot.in/)\n\n"
