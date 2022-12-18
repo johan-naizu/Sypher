@@ -479,14 +479,14 @@ class Mod(commands.Cog):
         after=now-datetime.timedelta(days=14)
         try:
             if limit>5:
-                l=await ctx.channel.purge(limit=limit+1,after=after,bulk=True)
+                l=await ctx.channel.purge(limit=limit+1,bulk=True)
                 if len(l)<limit+1:
                     embed = discord.Embed(color=ENV_COLOUR,
                                           description=f'{utils.CROSS_EMOJI} Bulk delete is applicable only for messages sent in the last 2 weeks')
                     await ctx.send(embed=embed)
                     return
             else:
-                await ctx.channel.purge(limit=limit + 1,bulk=True)
+                await ctx.channel.purge(limit=limit+1,bulk=True)
         except:
             embed = discord.Embed(color=ENV_COLOUR,
                                   description=f'{utils.CROSS_EMOJI} Encountered an error while deleting messages')
