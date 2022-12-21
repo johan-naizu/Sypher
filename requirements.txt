@@ -1,5 +1,5 @@
 asyncio==3.4.3
-discord.py==1.7.3
+discord.py==2.1.0
 aiofiles==0.8.0
 aiomysql==0.0.22
 Pillow==9.3.0
