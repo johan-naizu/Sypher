@@ -1,14 +1,11 @@
 import io
-import asyncio
 from PIL import Image,ImageFont,ImageDraw
 from discord.ext import commands
 import aiomysql
 import random
 import discord
 import utils
-from discord import ActionRow, Button, ButtonStyle,app_commands
-from typing import Union
-
+from discord import ButtonStyle,app_commands
 
 
 class Levelling(commands.Cog):

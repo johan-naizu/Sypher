@@ -5,7 +5,6 @@ from discord.ext import commands
 import aiomysql
 import discord
 import utils
-from typing import Union
 ENV_COLOUR=utils.ENV_COLOUR
 from discord import app_commands
 

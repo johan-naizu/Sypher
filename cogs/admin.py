@@ -6,9 +6,7 @@ import discord
 from discord.ext import commands
 import utils
 import json
-import asyncio
 import ast
-import aiofiles
 class admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

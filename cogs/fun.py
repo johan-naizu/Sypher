@@ -3,8 +3,6 @@ import asyncio
 import discord
 from discord.ext import commands
 import utils
-from typing import Union
-from discord import ActionRow, Button, ButtonStyle
 ENV_COLOUR=utils.ENV_COLOUR
 
 

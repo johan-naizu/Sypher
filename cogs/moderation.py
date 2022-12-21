@@ -1,11 +1,7 @@
-import asyncio
 import datetime
 from typing import Union
-import filetype
-import aiohttp
 import aiomysql
 import discord
-import json
 from discord.ext import commands, tasks
 import utils
 ENV_COLOUR=utils.ENV_COLOUR
