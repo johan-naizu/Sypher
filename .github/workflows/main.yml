@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: multiple command
-        uses: appleboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@v0.1.6
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
